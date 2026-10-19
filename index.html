@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Ferry Street SQL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: record-shop counter. Lesson crate on the left, the request + editor + receipt-style results on the right. */
+:root {
+  --bg: #eaeef3;
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --ink: #16243a;
+  --muted: #56667d;
+  --line: #d3dbe5;
+  --accent: #e3a624;
+  --accent-ink: #875900;
+  --on-accent: #1a1405;
+  --good: #1d8457;
+  --good-bg: #e2f4ea;
+  --bad: #b93d29;
+  --bad-bg: #fbe9e5;
+  --editor-bg: #15213a;
+  --editor-fg: #e9eff8;
+  --editor-muted: #8fa0bb;
+  --vinyl: #15213a;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1524; --surface: #162139; --surface-2: #1b2843; --ink: #e6ecf5; --muted: #93a3ba;
+    --line: #2a3a58; --accent: #f0b73a; --accent-ink: #f3c25a; --on-accent: #1a1405;
+    --good: #4cc48b; --good-bg: #133326; --bad: #f2806c; --bad-bg: #3a1c19;
+    --editor-bg: #0a1120; --editor-fg: #e9eff8; --editor-muted: #7d8dab; --vinyl: #05080f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1524; --surface: #162139; --surface-2: #1b2843; --ink: #e6ecf5; --muted: #93a3ba;
+  --line: #2a3a58; --accent: #f0b73a; --accent-ink: #f3c25a; --on-accent: #1a1405;
+  --good: #4cc48b; --good-bg: #133326; --bad: #f2806c; --bad-bg: #3a1c19;
+  --editor-bg: #0a1120; --editor-fg: #e9eff8; --editor-muted: #7d8dab; --vinyl: #05080f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+code, pre, textarea { font-family: var(--font-mono); }
+code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; font-size: .88em; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Record (logo) ---------- */
+.record {
+  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  background:
+    radial-gradient(circle, var(--bg) 0 7%, var(--accent) 8% 26%, var(--vinyl) 27% 100%);
+  box-shadow: inset 0 0 0 4px var(--vinyl), inset 0 0 0 5px rgba(255,255,255,.08), inset 0 0 0 9px var(--vinyl), inset 0 0 0 10px rgba(255,255,255,.08);
+}
+.record.spin { animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Gate ---------- */
+.gate {
+  min-height: 100%; display: grid; place-items: center;
+  padding-block: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.gate-card {
+  width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 32px 28px; display: grid; gap: 18px;
+}
+.gate-card .record { width: 72px; height: 72px; }
+.gate-card h1 { font-size: 2rem; font-weight: 800; }
+.gate-card p { margin: 0; color: var(--muted); }
+.gate-row { display: flex; gap: 8px; }
+.gate-row input {
+  flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+}
+.gate-err { color: var(--bad); font-weight: 700; min-height: 1.5em; }
+.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-6px);} 75% { transform: translateX(6px);} }
+
+/* ---------- Buttons ---------- */
+.btn {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 9px 16px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { background: var(--surface-2); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent); filter: brightness(1.06); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { color: var(--ink); background: var(--surface-2); }
+kbd { font-family: var(--font-mono); font-size: .72em; opacity: .7; }
+
+/* ---------- App shell ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 14px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand h1 { font-size: 1.25rem; font-weight: 800; white-space: nowrap; }
+.brand small { display: block; color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+.xp { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.rank { text-align: right; line-height: 1.2; }
+.rank b { font-family: var(--font-display); display: block; }
+.rank span { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.xpbar { width: 120px; height: 10px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.xpbar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .6s ease; }
+.nav-toggle { display: none; }
+
+.app { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+.nav {
+  border-right: 1px solid var(--line); padding: 18px 12px 40px;
+  position: sticky; top: calc(61px + env(safe-area-inset-top, 0px)); align-self: start;
+  max-height: calc(100vh - 61px); overflow-y: auto;
+}
+.nav h2 { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-family: var(--font-body); padding: 0 10px 8px; }
+.nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.nav button {
+  width: 100%; text-align: left; border: 0; background: transparent; color: var(--ink);
+  padding: 7px 10px; border-radius: 8px; display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: center;
+}
+.nav button:hover { background: var(--surface-2); }
+.nav button.current { background: var(--surface); box-shadow: 0 0 0 1px var(--line); font-weight: 700; }
+.nav .num {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: .75rem; font-family: var(--font-mono); border: 1.5px solid var(--line); color: var(--muted);
+}
+.nav .done .num { background: var(--good); border-color: var(--good); color: var(--surface); }
+.nav .boss .num { border-color: var(--accent); color: var(--accent-ink); }
+.nav .section-label { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 14px 10px 4px; }
+
+.main {
+  padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px; min-width: 0; max-width: 900px; width: 100%;
+}
+@media (min-width: 861px) { .main { padding-left: 36px; padding-right: 36px; } }
+.eyebrow { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+.lesson-head { display: grid; gap: 6px; }
+.lesson-head h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; }
+
+.memo {
+  display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start;
+}
+.avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem;
+}
+.bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 12px 16px; min-width: 0; }
+.bubble .who { font-size: .8rem; color: var(--muted); font-weight: 700; }
+.bubble p { margin: 2px 0 0; }
+
+.teach { max-width: 68ch; display: grid; gap: 12px; }
+.teach p { margin: 0; }
+.teach ul { margin: 0; padding-left: 1.2em; }
+.example {
+  background: var(--editor-bg); color: var(--editor-fg); border-radius: var(--radius);
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 10px 10px 14px; min-width: 0;
+}
+.example pre { margin: 0; flex: 1; min-width: 0; overflow-x: auto; font-size: .9rem; padding: 2px 0; }
+.example button {
+  flex: none; border: 1px solid rgba(255,255,255,.2); background: transparent; color: var(--editor-fg);
+  border-radius: 6px; padding: 3px 10px; font-size: .8rem;
+}
+.example button:hover { background: rgba(255,255,255,.1); }
+
+.task {
+  border: 2px dashed var(--accent); border-radius: var(--radius); padding: 14px 16px;
+  background: var(--surface); display: grid; gap: 4px;
+}
+.task b { font-family: var(--font-display); font-size: 1.05rem; }
+
+details.schema { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+details.schema summary { padding: 10px 14px; cursor: pointer; font-weight: 700; }
+.schema-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; padding: 0 14px 14px; }
+.tbl { border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); padding: 8px 10px; min-width: 0; }
+.tbl button { border: 0; background: none; padding: 0; color: var(--accent-ink); font-family: var(--font-mono); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.tbl ul { list-style: none; margin: 4px 0 0; padding: 0; font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+.tbl li span { color: var(--ink); }
+
+.editor-wrap { background: var(--editor-bg); border-radius: var(--radius); overflow: hidden; }
+.editor-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; color: var(--editor-muted); font-size: .8rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+.editor-bar .dots { display: flex; gap: 6px; }
+.editor-bar .dots i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.15); }
+textarea#sql {
+  display: block; width: 100%; min-height: 150px; resize: vertical; border: 0; outline: none;
+  background: transparent; color: var(--editor-fg); padding: 14px 16px; font-size: .98rem; line-height: 1.6; tab-size: 2;
+  caret-color: var(--accent);
+}
+textarea#sql::placeholder { color: var(--editor-muted); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.actions .spacer { flex: 1; }
+
+.feedback { border-radius: var(--radius); padding: 12px 16px; font-weight: 700; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.feedback.good { background: var(--good-bg); color: var(--good); }
+.feedback.bad { background: var(--bad-bg); color: var(--bad); }
+.feedback.info { background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-weight: 400; }
+.feedback .msg { flex: 1; min-width: 200px; }
+.feedback .msg small { display: block; font-weight: 400; color: var(--ink); opacity: .85; }
+.hint { background: var(--surface); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+.hint pre { margin: 6px 0 0; white-space: pre-wrap; font-size: .9rem; }
+
+.results { display: grid; gap: 6px; min-width: 0; }
+.results .cap { font-size: .8rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); max-height: 420px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 12px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { position: sticky; top: 0; background: var(--surface-2); font-family: var(--font-mono); font-size: .8rem; font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.null { color: var(--muted); font-style: italic; }
+td.num { text-align: right; font-family: var(--font-mono); font-size: .85rem; }
+
+.finale { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; }
+
+/* confetti */
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+.confetti i { position: absolute; width: 9px; height: 14px; border-radius: 2px; animation: fall 1.4s cubic-bezier(.2,.6,.4,1) forwards; }
+@keyframes fall { from { transform: translate(0,0) rotate(0); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .nav { display: none; position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); background: var(--surface); }
+  .app.nav-open .nav { display: block; }
+  .nav-toggle { display: inline-flex; }
+  .xpbar { display: none; }
+  .brand small { display: none; }
+}
+@media (max-width: 480px) {
+  .rank span { display: none; }
+  .brand h1 { font-size: 1.05rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .record.spin, .shake { animation: none; }
+  .xpbar i { transition: none; }
+}
+</style>
+
+<!-- Password gate -->
+<div class="gate" id="gate">
+  <form class="gate-card" id="gate-form" autocomplete="off">
+    <div class="record"></div>
+    <h1>Ferry Street SQL</h1>
+    <p>Learn SQL from zero by running the database of a small record shop. Enter the password to open the shop.</p>
+    <div class="gate-row">
+      <label for="pw" class="sr" hidden>Password</label>
+      <input id="pw" type="password" placeholder="Password" aria-label="Password" autofocus>
+      <button class="btn btn-primary" type="submit">Open</button>
+    </div>
+    <div class="gate-err" id="gate-err" aria-live="polite"></div>
+  </form>
+</div>
+
+<!-- App -->
+<div id="app-root" hidden>
+  <header class="topbar">
+    <button class="btn nav-toggle" id="nav-toggle" type="button" aria-expanded="false">Lessons</button>
+    <div class="brand">
+      <div class="record" id="logo"></div>
+      <div><h1>Ferry Street SQL</h1><small>Learn SQL at the record shop</small></div>
+    </div>
+    <div class="xp">
+      <div class="rank"><b id="rank-name">Browser</b><span id="xp-text">0 XP</span></div>
+      <div class="xpbar" aria-hidden="true"><i id="xp-fill"></i></div>
+    </div>
+  </header>
+  <div class="app" id="app">
+    <nav class="nav" id="nav" aria-label="Lessons"></nav>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-asm.js"></script>
+<script>
+(function () {
+"use strict";
+
+/* ---- Password (client side only, by design) ---- */
+const PASSWORD = "selectstar";
+
+/* ---- The shop database ---- */
+const SEED = `
+CREATE TABLE artists (id INTEGER PRIMARY KEY, name TEXT, genre TEXT, country TEXT, formed INTEGER);
+INSERT INTO artists VALUES
+(1,'The Paper Lanterns','Indie','UK',2009),
+(2,'Mira Solano','Jazz','Spain',2001),
+(3,'Copper Tide','Rock','USA',1994),
+(4,'Hollow Pines','Folk','Canada',2012),
+(5,'Dee & The Static','Punk','UK',2016),
+(6,'Kofi Mensah Quartet','Jazz','Ghana',1998),
+(7,'Neon Harbour','Electronic','Japan',2014),
+(8,'Velvet Orchard','Soul','USA',2005),
+(9,'Gravel Choir','Rock','Ireland',2010),
+(10,'Luna Okafor','Electronic','Nigeria',2019);
+
+CREATE TABLE albums (id INTEGER PRIMARY KEY, title TEXT, artist_id INTEGER, year INTEGER, price REAL, stock INTEGER);
+INSERT INTO albums VALUES
+(1,'Paper Moons',1,2011,18.99,4),
+(2,'Lantern Light',1,2015,21.50,0),
+(3,'Blue Hour Sessions',2,2003,24.00,2),
+(4,'Late Train to Seville',2,2009,19.99,6),
+(5,'Rust & Rivers',3,1996,12.99,9),
+(6,'Copper Skies',3,2002,14.50,3),
+(7,'Tidewater',3,2018,22.00,1),
+(8,'Snowline',4,2014,16.00,5),
+(9,'Woodsmoke',4,2020,17.50,0),
+(10,'Turn It Down (No)',5,2017,11.00,8),
+(11,'Static Shock',5,2021,13.50,2),
+(12,'Accra Nights',6,2000,26.00,1),
+(13,'Highlife Standards',6,2007,23.50,3),
+(14,'Afterglow City',7,2016,20.00,7),
+(15,'Midnight Ferry',7,2022,22.50,4),
+(16,'Honey & Thunder',8,2006,19.00,0),
+(17,'Sunday Gold',8,2011,18.00,5),
+(18,'Loose Stones',9,2012,15.00,6),
+(19,'Kerry Weather',9,2019,16.50,2);
+
+CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, city TEXT, joined TEXT, email TEXT);
+INSERT INTO customers VALUES
+(1,'Maya Chen','Leeds','2021-03-14','maya@example.com'),
+(2,'Tom Reilly','Dublin','2020-11-02',NULL),
+(3,'Priya Nair','Leeds','2022-06-30','priya@example.com'),
+(4,'Marcus Webb','Bristol','2019-08-21','marcus@example.com'),
+(5,'Ana Souza','Lisbon','2023-01-09',NULL),
+(6,'Jonas Berg','Bristol','2022-09-17','jonas@example.com'),
+(7,'Mei Tanaka','Leeds','2020-04-25','mei@example.com'),
+(8,'Olu Adeyemi','London','2021-12-01',NULL),
+(9,'Sara Lind','Dublin','2023-05-11','sara@example.com'),
+(10,'Ruth Pike','London','2018-02-28','ruth@example.com'),
+(11,'Martin Duff','Glasgow','2024-03-03',NULL),
+(12,'Ivy Moss','Bristol','2024-07-19','ivy@example.com');
+
+CREATE TABLE sales (id INTEGER PRIMARY KEY, customer_id INTEGER, album_id INTEGER, sold_on TEXT, qty INTEGER);
+INSERT INTO sales VALUES
+(1,1,1,'2024-01-05',1),(2,1,14,'2024-01-05',1),(3,2,5,'2024-01-12',2),(4,3,8,'2024-01-20',1),
+(5,4,12,'2024-02-02',1),(6,4,13,'2024-02-02',1),(7,5,4,'2024-02-14',1),(8,6,10,'2024-02-20',3),
+(9,7,3,'2024-03-01',1),(10,7,17,'2024-03-01',1),(11,8,15,'2024-03-09',1),(12,9,18,'2024-03-15',2),
+(13,10,6,'2024-03-22',1),(14,10,7,'2024-03-22',1),(15,10,12,'2024-03-30',2),(16,1,8,'2024-04-04',1),
+(17,3,14,'2024-04-11',1),(18,2,19,'2024-04-18',1),(19,6,11,'2024-04-25',2),(20,4,3,'2024-05-02',1),
+(21,12,1,'2024-05-09',1),(22,9,4,'2024-05-16',1),(23,5,16,'2024-05-23',1),(24,8,14,'2024-06-01',2),
+(25,10,13,'2024-06-08',1),(26,7,9,'2024-06-15',1),(27,3,2,'2024-06-22',1),(28,4,15,'2024-06-29',1);
+`;
+
+const SCHEMA = [
+  { name: "artists", cols: [["id","number"],["name","text"],["genre","text"],["country","text"],["formed","year"]] },
+  { name: "albums", cols: [["id","number"],["title","text"],["artist_id","→ artists.id"],["year","number"],["price","£"],["stock","copies"]] },
+  { name: "customers", cols: [["id","number"],["name","text"],["city","text"],["joined","date"],["email","text or NULL"]] },
+  { name: "sales", cols: [["id","number"],["customer_id","→ customers.id"],["album_id","→ albums.id"],["sold_on","date"],["qty","copies"]] },
+];
+
+/* ---- Lessons ---- */
+const L = [
+ { sec: "The basics" },
+ { id: "select-all", title: "Meet the shop",
+   story: "Welcome aboard! I'm Dot, I run Ferry Street Records. Everything we know lives in a database. Let's start by having a look at the artists we stock.",
+   teach: `<p>A database holds <b>tables</b>, like spreadsheets with named columns. You ask it questions in <b>SQL</b>. The most common question is a <code>SELECT</code>:</p>
+<p><code>SELECT</code> says what columns you want, <code>FROM</code> says which table. The <code>*</code> means "every column". The semicolon at the end is optional but tidy.</p>`,
+   ex: ["SELECT * FROM customers;"],
+   task: "Show every column and every row of the <code>artists</code> table.",
+   starter: "", sol: "SELECT * FROM artists;",
+   hint: "Same as the example, just a different table name." },
+
+ { id: "columns", title: "Pick your columns",
+   story: "I'm printing price tags. I don't need everything, just each album's title and its price.",
+   teach: `<p>Instead of <code>*</code>, list the columns you want, separated by commas. They come back in the order you write them.</p>`,
+   ex: ["SELECT name, city FROM customers;"],
+   task: "List the <code>title</code> and <code>price</code> of every album, in that order.",
+   sol: "SELECT title, price FROM albums;",
+   hint: "SELECT column1, column2 FROM albums;" },
+
+ { id: "where", title: "Filter with WHERE",
+   story: "We're making a bargain bin. Which albums cost less than £15?",
+   teach: `<p><code>WHERE</code> keeps only the rows that pass a test. For numbers you can compare with
+<code>=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> and <code>&lt;&gt;</code> (not equal).</p>`,
+   ex: ["SELECT title, year FROM albums WHERE year < 2005;"],
+   task: "Show the <code>title</code> and <code>price</code> of albums that cost less than 15.",
+   sol: "SELECT title, price FROM albums WHERE price < 15;",
+   hint: "Add WHERE price < 15 after FROM albums." },
+
+ { id: "text", title: "Matching text",
+   story: "A customer wants jazz. Who are our jazz artists, and where are they from?",
+   teach: `<p>Text values go in <b>single quotes</b>: <code>'Jazz'</code>. Without quotes, SQL thinks <code>Jazz</code> is a column name and complains.</p>
+<p>Text matching with <code>=</code> is exact, so <code>'jazz'</code> and <code>'Jazz'</code> are different.</p>`,
+   ex: ["SELECT name FROM customers WHERE city = 'Leeds';"],
+   task: "Show the <code>name</code> and <code>country</code> of every artist whose <code>genre</code> is Jazz.",
+   sol: "SELECT name, country FROM artists WHERE genre = 'Jazz';",
+   hint: "WHERE genre = 'Jazz' (capital J, single quotes)." },
+
+ { id: "and-or", title: "AND, OR, NOT",
+   story: "I want to put recent records in the window, but only ones we actually have on the shelf.",
+   teach: `<p>Combine tests with <code>AND</code> (both must be true) or <code>OR</code> (either one). <code>NOT</code> flips a test.
+When you mix AND and OR, use brackets to be clear: <code>WHERE (a OR b) AND c</code>.</p>`,
+   ex: ["SELECT title FROM albums WHERE price > 20 OR stock = 0;", "SELECT name FROM artists WHERE country = 'UK' AND NOT genre = 'Punk';"],
+   task: "Show the <code>title</code> of albums released after 2015 that are in stock (<code>stock</code> greater than 0).",
+   sol: "SELECT title FROM albums WHERE year > 2015 AND stock > 0;",
+   hint: "Two conditions joined with AND: year > 2015 AND stock > 0" },
+
+ { id: "order", title: "Sorting with ORDER BY",
+   story: "Show me the price list, fanciest records at the top.",
+   teach: `<p><code>ORDER BY column</code> sorts the result. It sorts smallest first (<code>ASC</code>) unless you add <code>DESC</code>.
+It goes after <code>WHERE</code> if you have one.</p>`,
+   ex: ["SELECT name, joined FROM customers ORDER BY joined;", "SELECT title, year FROM albums ORDER BY year DESC;"],
+   task: "Show <code>title</code> and <code>price</code> of all albums, most expensive first.",
+   sol: "SELECT title, price FROM albums ORDER BY price DESC;", ordered: true,
+   hint: "ORDER BY price DESC" },
+
+ { id: "limit", title: "Top N with LIMIT",
+   story: "I only have room for three records in the glass cabinet. Which three are the most expensive?",
+   teach: `<p><code>LIMIT n</code> keeps only the first n rows. With <code>ORDER BY</code> it gives you "top 3", "newest 5" and so on. It always goes last.</p>`,
+   ex: ["SELECT name, joined FROM customers ORDER BY joined DESC LIMIT 2;"],
+   task: "Show the <code>title</code> and <code>price</code> of the 3 most expensive albums, priciest first.",
+   sol: "SELECT title, price FROM albums ORDER BY price DESC LIMIT 3;", ordered: true,
+   hint: "Take the last lesson's answer and add LIMIT 3 at the end." },
+
+ { sec: "Sharper filters" },
+ { id: "like", title: "Patterns with LIKE",
+   story: "Someone called earlier and left a message. All I caught was that their name starts with M. Can you narrow it down?",
+   teach: `<p><code>LIKE</code> matches text against a pattern. <code>%</code> means "any characters (or none)" and <code>_</code> means "exactly one character".</p>
+<ul><li><code>'M%'</code> starts with M</li><li><code>'%Moon%'</code> contains Moon</li><li><code>'%s'</code> ends with s</li></ul>
+<p>In SQLite, LIKE ignores upper/lower case for normal letters.</p>`,
+   ex: ["SELECT title FROM albums WHERE title LIKE '%city%';"],
+   task: "Show the <code>name</code> of every customer whose name starts with M.",
+   sol: "SELECT name FROM customers WHERE name LIKE 'M%';",
+   hint: "WHERE name LIKE 'M%'" },
+
+ { id: "in-between", title: "IN and BETWEEN",
+   story: "We're doing a noughties night. Find every album released from 2000 to 2010.",
+   teach: `<p><code>BETWEEN a AND b</code> is a range test, and it includes both ends. <code>IN (...)</code> checks against a list, which saves writing lots of ORs.</p>`,
+   ex: ["SELECT name, city FROM customers WHERE city IN ('Leeds', 'Dublin');", "SELECT title, price FROM albums WHERE price BETWEEN 15 AND 18;"],
+   task: "Show the <code>title</code> and <code>year</code> of albums released between 2000 and 2010 (including both).",
+   sol: "SELECT title, year FROM albums WHERE year BETWEEN 2000 AND 2010;",
+   hint: "WHERE year BETWEEN 2000 AND 2010" },
+
+ { id: "null", title: "Missing values: NULL",
+   story: "I want to email everyone about the noughties night. Who haven't we got an email address for?",
+   teach: `<p><code>NULL</code> means "no value here". It is not zero and not empty text. It is so special that <code>= NULL</code> never matches anything.
+You have to write <code>IS NULL</code> or <code>IS NOT NULL</code>.</p>`,
+   ex: ["SELECT name, email FROM customers WHERE email IS NOT NULL;"],
+   task: "Show the <code>name</code> of every customer with no email address.",
+   sol: "SELECT name FROM customers WHERE email IS NULL;",
+   hint: "WHERE email IS NULL (not = NULL)" },
+
+ { id: "distinct", title: "No repeats with DISTINCT",
+   story: "I'm making genre dividers for the racks. What genres do we have? Just one of each, please.",
+   teach: `<p><code>SELECT DISTINCT</code> removes duplicate rows from the result.</p>`,
+   ex: ["SELECT DISTINCT city FROM customers;"],
+   task: "List each <code>genre</code> from the artists table once.",
+   sol: "SELECT DISTINCT genre FROM artists;",
+   hint: "SELECT DISTINCT genre FROM ..." },
+
+ { sec: "Counting and grouping" },
+ { id: "aggregates", title: "Counting and totals",
+   story: "The accountant is asking two things: how many different albums do we sell, and how many copies are on the shelves in total?",
+   teach: `<p><b>Aggregate functions</b> squash many rows into one answer:</p>
+<ul><li><code>COUNT(*)</code> number of rows</li><li><code>SUM(col)</code> total</li><li><code>AVG(col)</code> average</li><li><code>MIN(col)</code> and <code>MAX(col)</code></li></ul>`,
+   ex: ["SELECT COUNT(*) FROM customers;", "SELECT MIN(price), MAX(price), AVG(price) FROM albums;"],
+   task: "Return one row with two columns: the number of albums, and the total of the <code>stock</code> column.",
+   sol: "SELECT COUNT(*), SUM(stock) FROM albums;",
+   hint: "SELECT COUNT(*), SUM(stock) FROM albums;" },
+
+ { id: "alias", title: "Maths and naming with AS",
+   story: "For insurance I need to know what each album's stock is worth: price times copies.",
+   teach: `<p>You can do maths in a SELECT: <code>+ - * /</code>. Use <code>AS</code> to give the new column a readable name.
+<code>ROUND(x, 2)</code> rounds to 2 decimal places.</p>`,
+   ex: ["SELECT title, price, price * 1.2 AS price_with_tax FROM albums;"],
+   task: "Show each album's <code>title</code> and its stock value (<code>price * stock</code>) named <code>stock_value</code>.",
+   sol: "SELECT title, price * stock AS stock_value FROM albums;",
+   hint: "SELECT title, price * stock AS stock_value FROM albums;" },
+
+ { id: "group", title: "GROUP BY",
+   story: "Where do our customers live? I'd like a count per city, so I know where to put up posters.",
+   teach: `<p><code>GROUP BY col</code> splits rows into groups that share a value, then runs your aggregate once per group.
+Select the grouping column too, so you can tell the groups apart.</p>`,
+   ex: ["SELECT genre, COUNT(*) FROM artists GROUP BY genre;", "SELECT artist_id, AVG(price) FROM albums GROUP BY artist_id;"],
+   task: "Show each <code>city</code> and how many customers live there.",
+   sol: "SELECT city, COUNT(*) FROM customers GROUP BY city;",
+   hint: "SELECT city, COUNT(*) FROM customers GROUP BY city;" },
+
+ { id: "having", title: "Filtering groups with HAVING",
+   story: "Posters cost money. Only show me cities with at least 2 customers.",
+   teach: `<p><code>WHERE</code> filters rows <i>before</i> grouping. <code>HAVING</code> filters groups <i>after</i>, so it can use aggregates like <code>COUNT(*)</code>.</p>`,
+   ex: ["SELECT genre, COUNT(*) FROM artists GROUP BY genre HAVING COUNT(*) > 1;"],
+   task: "Show each <code>city</code> and its customer count, but only cities with 2 or more customers.",
+   sol: "SELECT city, COUNT(*) FROM customers GROUP BY city HAVING COUNT(*) >= 2;",
+   hint: "Add HAVING COUNT(*) >= 2 after the GROUP BY." },
+
+ { sec: "Joining tables" },
+ { id: "join", title: "Joining tables",
+   story: "The albums table only says artist_id 3, artist_id 7... I can't read that. Put the artist's name next to each album.",
+   teach: `<p>Tables link to each other with ids. <code>albums.artist_id</code> points at <code>artists.id</code>.
+A <code>JOIN</code> glues matching rows together side by side, and <code>ON</code> says how they match.</p>
+<p>When two tables share a column name (both have <code>id</code>), write <code>table.column</code> to say which one.</p>`,
+   ex: ["SELECT sales.sold_on, customers.name\nFROM sales\nJOIN customers ON sales.customer_id = customers.id;"],
+   task: "Show each album's <code>title</code> and its artist's <code>name</code>.",
+   sol: "SELECT albums.title, artists.name FROM albums JOIN artists ON albums.artist_id = artists.id;",
+   hint: "FROM albums JOIN artists ON albums.artist_id = artists.id" },
+
+ { id: "three-way", title: "Table aliases and bigger joins",
+   story: "I'd love a readable sales log: who bought what, and when.",
+   teach: `<p>Typing table names gets old. Give each table a short alias right after its name, then use it everywhere.
+You can chain as many JOINs as you need.</p>`,
+   ex: ["SELECT al.title, ar.name\nFROM albums al\nJOIN artists ar ON al.artist_id = ar.id;"],
+   task: "For every sale show the customer's <code>name</code>, the album <code>title</code> and <code>sold_on</code>, in that order.",
+   sol: "SELECT c.name, a.title, s.sold_on FROM sales s JOIN customers c ON s.customer_id = c.id JOIN albums a ON s.album_id = a.id;",
+   hint: "FROM sales s\nJOIN customers c ON s.customer_id = c.id\nJOIN albums a ON s.album_id = a.id" },
+
+ { id: "join-group", title: "Joins plus GROUP BY",
+   story: "Who's actually selling? Total copies sold per artist, best sellers first.",
+   teach: `<p>Joins and grouping work together: join first to get the columns you need, then group.
+To break ties when sorting, add a second column: <code>ORDER BY total DESC, name</code>.</p>`,
+   ex: ["SELECT c.city, SUM(s.qty) AS copies\nFROM sales s\nJOIN customers c ON s.customer_id = c.id\nGROUP BY c.city\nORDER BY copies DESC;"],
+   task: "Show each artist's <code>name</code> and total copies sold (<code>SUM(qty)</code>). Highest first, ties sorted by name A to Z. Leave out artists with no sales.",
+   sol: "SELECT ar.name, SUM(s.qty) AS total FROM sales s JOIN albums al ON s.album_id = al.id JOIN artists ar ON al.artist_id = ar.id GROUP BY ar.name ORDER BY total DESC, ar.name;", ordered: true,
+   hint: "sales → albums → artists. GROUP BY ar.name, ORDER BY total DESC, ar.name" },
+
+ { id: "left-join", title: "LEFT JOIN",
+   story: "I think there's an artist in our system with no albums in the shop at all. Can you find them?",
+   teach: `<p>A plain <code>JOIN</code> drops rows that have no match. A <code>LEFT JOIN</code> keeps every row from the left table and fills the missing side with NULL.
+So "things with no match" = <code>LEFT JOIN</code> + <code>WHERE right.id IS NULL</code>.</p>`,
+   ex: ["SELECT c.name, s.id\nFROM customers c\nLEFT JOIN sales s ON s.customer_id = c.id\nWHERE s.id IS NULL;"],
+   task: "Show the <code>name</code> of every artist who has no albums.",
+   sol: "SELECT ar.name FROM artists ar LEFT JOIN albums al ON al.artist_id = ar.id WHERE al.id IS NULL;",
+   hint: "FROM artists ar LEFT JOIN albums al ON al.artist_id = ar.id WHERE al.id IS NULL" },
+
+ { id: "subquery", title: "Queries inside queries",
+   story: "Which albums are priced above our average price? I might be overcharging.",
+   teach: `<p>A <b>subquery</b> is a query in brackets used inside another query. Here the inner one works out a single number, and the outer one uses it.</p>`,
+   ex: ["SELECT name FROM customers\nWHERE id IN (SELECT customer_id FROM sales WHERE qty > 1);"],
+   task: "Show the <code>title</code> and <code>price</code> of albums that cost more than the average album price.",
+   sol: "SELECT title, price FROM albums WHERE price > (SELECT AVG(price) FROM albums);",
+   hint: "WHERE price > (SELECT AVG(price) FROM albums)" },
+
+ { sec: "Changing data" },
+ { id: "insert", title: "Adding rows with INSERT",
+   story: "New regular! Zoe Hart from Leeds signed up today, 2024-10-01. She didn't give an email.",
+   teach: `<p><code>INSERT INTO table (columns) VALUES (values);</code> adds a row. Skip the <code>id</code> and the database picks the next number for you.</p>
+<p>Don't worry about breaking things: every run starts from a fresh copy of the shop.</p>`,
+   ex: ["INSERT INTO artists (name, genre, country, formed)\nVALUES ('Test Band', 'Rock', 'UK', 2024);\nSELECT * FROM artists;"],
+   task: "Add customer <b>Zoe Hart</b>, city <b>Leeds</b>, joined <b>2024-10-01</b>, email NULL.",
+   mutate: true, verify: "SELECT name, city, joined, email FROM customers ORDER BY id;", verifyLabel: "customers table after your change",
+   sol: "INSERT INTO customers (name, city, joined, email) VALUES ('Zoe Hart', 'Leeds', '2024-10-01', NULL);",
+   hint: "INSERT INTO customers (name, city, joined, email)\nVALUES ('Zoe Hart', 'Leeds', '2024-10-01', NULL);" },
+
+ { id: "update", title: "Changing rows with UPDATE",
+   story: "Our supplier put prices up. Add £1 to every album that currently costs under £15.",
+   teach: `<p><code>UPDATE table SET col = value WHERE ...;</code> changes existing rows. You can use the old value: <code>SET price = price + 1</code>.</p>
+<p><b>Always</b> think about the WHERE. Leave it out and every row changes.</p>`,
+   ex: ["UPDATE albums SET stock = 10 WHERE title = 'Snowline';\nSELECT title, stock FROM albums;"],
+   task: "Increase <code>price</code> by 1 for every album priced under 15.",
+   mutate: true, verify: "SELECT id, title, price FROM albums ORDER BY id;", verifyLabel: "albums table after your change",
+   sol: "UPDATE albums SET price = price + 1 WHERE price < 15;",
+   hint: "UPDATE albums SET price = price + 1 WHERE price < 15;" },
+
+ { id: "delete", title: "Removing rows with DELETE",
+   story: "Time for a clear-out. Remove every album we've got zero copies of.",
+   teach: `<p><code>DELETE FROM table WHERE ...;</code> removes rows. Same warning as UPDATE: without WHERE it empties the whole table.</p>`,
+   ex: ["DELETE FROM customers WHERE city = 'Glasgow';\nSELECT * FROM customers;"],
+   task: "Delete every album whose <code>stock</code> is 0.",
+   mutate: true, verify: "SELECT id, title, stock FROM albums ORDER BY id;", verifyLabel: "albums table after your change",
+   sol: "DELETE FROM albums WHERE stock = 0;",
+   hint: "DELETE FROM albums WHERE stock = 0;" },
+
+ { id: "create", title: "Making a table",
+   story: "Customers keep asking us to hold records for them. Let's start a wishlist. Ana (customer 5) wants Woodsmoke (album 9).",
+   teach: `<p><code>CREATE TABLE</code> makes a new, empty table. You list each column and its type: <code>INTEGER</code>, <code>TEXT</code>, <code>REAL</code> (decimals).
+<code>INTEGER PRIMARY KEY</code> makes an id that fills itself in.</p>
+<p>You can run several statements at once, separated by semicolons.</p>`,
+   ex: ["CREATE TABLE notes (id INTEGER PRIMARY KEY, body TEXT);\nINSERT INTO notes (body) VALUES ('Order more jazz');\nSELECT * FROM notes;"],
+   task: "Create a table <code>wishlist</code> with columns <code>id</code>, <code>customer_id</code> and <code>album_id</code>, then insert one row: customer 5, album 9.",
+   mutate: true, verify: "SELECT customer_id, album_id FROM wishlist;", verifyLabel: "wishlist table after your change",
+   sol: "CREATE TABLE wishlist (id INTEGER PRIMARY KEY, customer_id INTEGER, album_id INTEGER);\nINSERT INTO wishlist (customer_id, album_id) VALUES (5, 9);",
+   hint: "CREATE TABLE wishlist (id INTEGER PRIMARY KEY, customer_id INTEGER, album_id INTEGER);\nINSERT INTO wishlist (customer_id, album_id) VALUES (5, 9);" },
+
+ { sec: "Final round" },
+ { id: "boss", title: "Boss level: best customer", boss: true,
+   story: "Last one, and it's a big one. I want to send a thank-you card to whoever has spent the most money here. Who is it, and how much?",
+   teach: `<p>Everything comes together: join <code>sales</code> to <code>albums</code> to get prices, work out <code>qty * price</code> for each sale,
+join <code>customers</code> for names, group by customer, sum, sort, and keep the top one.</p>`,
+   ex: [],
+   task: "Show the <code>name</code> and total spent (sum of <code>qty * price</code>) of the single biggest-spending customer.",
+   sol: "SELECT c.name, SUM(s.qty * a.price) AS spent FROM sales s JOIN albums a ON s.album_id = a.id JOIN customers c ON s.customer_id = c.id GROUP BY c.id ORDER BY spent DESC LIMIT 1;", ordered: true,
+   hint: "FROM sales s JOIN albums a ON ... JOIN customers c ON ...\nGROUP BY c.id\nORDER BY SUM(s.qty * a.price) DESC\nLIMIT 1" },
+
+ { id: "play", title: "Free play", play: true,
+   story: "You've earned the keys to the shop. Ask the database anything you like.",
+   teach: `<p>Nothing to check here. Try ideas of your own. Some to get you started:</p>
+<ul><li>Which month had the most sales?</li><li>What's the most popular genre by copies sold?</li><li>Which customers bought from more than one artist?</li></ul>`,
+   ex: ["SELECT substr(sold_on, 1, 7) AS month, SUM(qty) AS copies\nFROM sales GROUP BY month ORDER BY month;"],
+   task: "", sol: "" },
+];
+const LESSONS = L.filter(x => x.id);
+const CHECKABLE = LESSONS.filter(x => !x.play);
+const XP_CLEAN = 15, XP_REVEALED = 5;
+const RANKS = [[0,"Browser"],[30,"Crate Digger"],[90,"Shop Assistant"],[170,"Record Buyer"],[260,"Data Wrangler"],[340,"Query Wizard"]];
+
+/* ---- Saved progress (per browser, best effort) ---- */
+const KEY = "ferry-street-sql-v1";
+let state = { current: LESSONS[0].id, done: {}, revealed: {}, drafts: {} };
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) state = Object.assign(state, s); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+function xp() { return Object.values(state.done).reduce((a, v) => a + v, 0); }
+function rankFor(x) { let r = RANKS[0], next = null; for (let i = 0; i < RANKS.length; i++) { if (x >= RANKS[i][0]) { r = RANKS[i]; next = RANKS[i + 1] || null; } } return { r, next }; }
+
+/* ---- Helpers ---- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let SQL = null;
+const sqlReady = (typeof initSqlJs === "function")
+  ? initSqlJs().then(s => { SQL = s; })
+  : Promise.reject(new Error("The SQL engine could not load. Check your connection and reload."));
+
+function freshDb() { const db = new SQL.Database(); db.run(SEED); return db; }
+function lastResult(results) {
+  if (!results || !results.length) return { columns: [], values: [] };
+  return results[results.length - 1];
+}
+function runOn(db, sql) { return lastResult(db.exec(sql)); }
+
+function normCell(v) {
+  if (v === null || v === undefined) return "∅";
+  if (typeof v === "number") return String(Math.round(v * 1e6) / 1e6);
+  return String(v);
+}
+function normRows(res, ordered) {
+  const rows = res.values.map(r => JSON.stringify(r.map(normCell)));
+  return ordered ? rows : rows.slice().sort();
+}
+function compare(exp, got, ordered) {
+  const ec = exp.columns.length, gc = got.columns.length;
+  if (gc === 0 && got.values.length === 0) return { ok: false, why: "Your query returned no rows.", tip: `Expected ${exp.values.length} row${exp.values.length === 1 ? "" : "s"}. Check your WHERE condition.` };
+  if (ec !== gc) return { ok: false, why: `Wrong number of columns: expected ${ec}, you have ${gc}.`, tip: "Check the columns listed in the task, in order." };
+  if (exp.values.length !== got.values.length) return { ok: false, why: `Expected ${exp.values.length} row${exp.values.length === 1 ? "" : "s"}, you got ${got.values.length}.`, tip: "Your filter is keeping too many or too few rows." };
+  const a = normRows(exp, ordered), b = normRows(got, ordered);
+  if (a.every((r, i) => r === b[i])) return { ok: true };
+  if (ordered) {
+    const as = a.slice().sort(), bs = b.slice().sort();
+    if (as.every((r, i) => r === bs[i])) return { ok: false, why: "Right rows, wrong order.", tip: "Check your ORDER BY." };
+  }
+  return { ok: false, why: "Right shape, but some values don't match.", tip: "Check the columns are the right ones and in the right order." };
+}
+
+/* ---- Rendering ---- */
+function renderTop() {
+  const x = xp(); const { r, next } = rankFor(x);
+  $("rank-name").textContent = r[1];
+  $("xp-text").textContent = next ? `${x} XP · ${next[0] - x} to ${next[1]}` : `${x} XP · top rank`;
+  const pct = next ? ((x - r[0]) / (next[0] - r[0])) * 100 : 100;
+  $("xp-fill").style.width = Math.max(3, pct) + "%";
+}
+
+function renderNav() {
+  let n = 0;
+  const doneCount = CHECKABLE.filter(l => state.done[l.id]).length;
+  let html = `<h2>${doneCount} of ${CHECKABLE.length} done</h2><ol>`;
+  for (const item of L) {
+    if (item.sec) { html += `<li class="section-label">${esc(item.sec)}</li>`; continue; }
+    n++;
+    const cls = [state.done[item.id] ? "done" : "", item.boss ? "boss" : "", item.id === state.current ? "current" : ""].join(" ");
+    const mark = state.done[item.id] ? "✓" : (item.play ? "∞" : n);
+    html += `<li><button type="button" class="${cls}" data-id="${item.id}"><span class="num">${mark}</span><span>${esc(item.title)}</span></button></li>`;
+  }
+  $("nav").innerHTML = html + "</ol>";
+}
+
+function lessonIndex(id) { return LESSONS.findIndex(l => l.id === id); }
+
+function renderLesson() {
+  const les = LESSONS[lessonIndex(state.current)] || LESSONS[0];
+  const idx = lessonIndex(les.id);
+  const label = les.play ? "Bonus" : les.boss ? "Boss level" : `Lesson ${idx + 1} of ${CHECKABLE.length}`;
+  const done = state.done[les.id];
+  const schemaHtml = SCHEMA.map(t => `<div class="tbl"><button type="button" data-peek="${t.name}">${t.name}</button><ul>${t.cols.map(c => `<li><span>${c[0]}</span> ${esc(c[1])}</li>`).join("")}</ul></div>`).join("");
+
+  $("main").innerHTML = `
+    <div class="lesson-head">
+      <div class="eyebrow">${label}${done ? " · completed" : ""}</div>
+      <h2>${esc(les.title)}</h2>
+    </div>
+    <div class="memo">
+      <div class="avatar" aria-hidden="true">D</div>
+      <div class="bubble"><div class="who">Dot, shop owner</div><p>${esc(les.story)}</p></div>
+    </div>
+    <section class="teach">${les.teach}
+      ${les.ex.map((e, i) => `<div class="example"><pre>${esc(e)}</pre><button type="button" data-ex="${i}">Try it</button></div>`).join("")}
+    </section>
+    ${les.task ? `<div class="task"><span class="eyebrow">Your task</span><b>${les.task}</b></div>` : ""}
+    <details class="schema"${idx < 2 ? " open" : ""}><summary>Shop database: 4 tables (tap a name to peek)</summary><div class="schema-grid">${schemaHtml}</div></details>
+    <div class="editor-wrap">
+      <div class="editor-bar"><div class="dots"><i></i><i></i><i></i></div><span>SQLite · Ctrl/⌘ + Enter to run</span></div>
+      <textarea id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Type your SQL here..." aria-label="SQL editor"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" id="run">${les.play ? "Run" : "Run &amp; check"} <kbd>Ctrl↵</kbd></button>
+      ${les.play ? "" : `<button class="btn" type="button" id="hint-btn">Hint</button><button class="btn btn-ghost" type="button" id="reveal-btn">Show answer</button>`}
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" type="button" id="clear-btn">Clear</button>
+    </div>
+    <div id="hint-box"></div>
+    <div id="feedback" aria-live="polite"></div>
+    <div id="results" class="results"></div>
+    ${les.play ? finaleHtml() : ""}
+  `;
+  const ta = $("sql");
+  ta.value = state.drafts[les.id] ?? les.starter ?? "";
+  bindLesson(les);
+  renderNav(); renderTop();
+}
+
+function finaleHtml() {
+  const doneCount = CHECKABLE.filter(l => state.done[l.id]).length;
+  return `<div class="finale"><span class="eyebrow">Your record</span><h3>${doneCount} of ${CHECKABLE.length} lessons done, ${xp()} XP, rank: ${esc(rankFor(xp()).r[1])}</h3>
+  <p style="margin:0;color:var(--muted)">Want a clean slate? <button class="btn btn-ghost" type="button" id="reset-btn">Reset all progress</button><span id="reset-confirm"></span></p></div>`;
+}
+
+function showTable(res, caption) {
+  const box = $("results");
+  if (!res.columns.length) { box.innerHTML = `<div class="cap"><span>${esc(caption)}</span></div><div class="feedback info">No rows came back.</div>`; return; }
+  const head = res.columns.map(c => `<th>${esc(c)}</th>`).join("");
+  const body = res.values.map(r => "<tr>" + r.map(v => v === null ? `<td class="null">NULL</td>` : typeof v === "number" ? `<td class="num">${esc(normCell(v))}</td>` : `<td>${esc(v)}</td>`).join("") + "</tr>").join("");
+  box.innerHTML = `<div class="cap"><span>${esc(caption)}</span><span>${res.values.length} row${res.values.length === 1 ? "" : "s"}</span></div>
+    <div class="table-scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function feedback(kind, html) { $("feedback").innerHTML = html ? `<div class="feedback ${kind}">${html}</div>` : ""; }
+
+function friendlyError(msg) {
+  let tip = "";
+  if (/no such column/i.test(msg)) tip = "Check the spelling of column names, and put text values in 'single quotes'.";
+  else if (/no such table/i.test(msg)) tip = "Check the table name. Open the database panel to see them all.";
+  else if (/syntax error/i.test(msg)) tip = "Something is in the wrong place. Check commas between columns and the order: SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT.";
+  else if (/incomplete input/i.test(msg)) tip = "The query ends too early. Missing a closing bracket or quote?";
+  else if (/misuse of aggregate/i.test(msg)) tip = "Aggregates like COUNT() can't go in WHERE. Use HAVING after GROUP BY.";
+  return `<div class="msg">The database said: ${esc(msg)}${tip ? `<small>${esc(tip)}</small>` : ""}</div>`;
+}
+
+function spin(on) { $("logo").classList.toggle("spin", on); }
+
+function run(les) {
+  const sql = $("sql").value.trim();
+  state.drafts[les.id] = $("sql").value; save();
+  if (!sql) { feedback("info", `<div class="msg">Type a query first. Stuck? Press Hint.</div>`); return; }
+  if (!SQL) { feedback("info", `<div class="msg">The SQL engine is still loading. Try again in a second.</div>`); return; }
+  spin(true);
+  setTimeout(() => spin(false), 600);
+
+  let got, db = freshDb();
+  try {
+    got = runOn(db, sql);
+    if (les.mutate) {
+      try { got = runOn(db, les.verify); }
+      catch (e) { db.close(); feedback("bad", friendlyError(e.message)); $("results").innerHTML = ""; return; }
+    }
+  } catch (e) { db.close(); feedback("bad", friendlyError(e.message)); $("results").innerHTML = ""; return; }
+  db.close();
+
+  showTable(got, les.mutate ? les.verifyLabel : "Your result");
+  if (les.play) { feedback("", ""); return; }
+
+  const edb = freshDb();
+  let exp;
+  try { exp = les.mutate ? (edb.exec(les.sol), runOn(edb, les.verify)) : runOn(edb, les.sol); }
+  finally { edb.close(); }
+
+  const c = compare(exp, got, !!les.ordered || !!les.mutate);
+  if (c.ok) {
+    const first = !state.done[les.id];
+    if (first) state.done[les.id] = state.revealed[les.id] ? XP_REVEALED : XP_CLEAN;
+    save();
+    const gained = first ? `+${state.done[les.id]} XP` : "Already done";
+    const nextL = LESSONS[lessonIndex(les.id) + 1];
+    feedback("good", `<div class="msg">${pick(["Nailed it!", "Spot on!", "Dot is impressed.", "That's the one!", "Beautiful query."])} ${gained}</div>
+      ${nextL ? `<button class="btn btn-primary" type="button" id="next-btn">Next: ${esc(nextL.title)} →</button>` : ""}`);
+    if (nextL) $("next-btn").onclick = () => go(nextL.id);
+    if (first) confetti();
+    renderNav(); renderTop();
+  } else {
+    feedback("bad", `<div class="msg">${esc(c.why)}<small>${esc(c.tip)}</small></div>`);
+  }
+}
+
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+function confetti() {
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const layer = document.createElement("div"); layer.className = "confetti";
+  const colors = ["var(--accent)", "var(--good)", "var(--ink)", "var(--bad)"];
+  const btn = $("run").getBoundingClientRect();
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement("i");
+    p.style.left = (btn.left + btn.width / 2) + "px"; p.style.top = btn.top + "px";
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty("--dx", (Math.random() * 360 - 180) + "px");
+    p.style.setProperty("--dy", (Math.random() * -260 - 40) + "px");
+    p.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+    p.style.animationDelay = (Math.random() * 0.12) + "s";
+    layer.appendChild(p);
+  }
+  document.body.appendChild(layer);
+  setTimeout(() => layer.remove(), 1700);
+}
+
+function go(id) {
+  state.current = id; save();
+  renderLesson();
+  $("app").classList.remove("nav-open"); $("nav-toggle").setAttribute("aria-expanded", "false");
+  window.scrollTo({ top: 0 });
+}
+
+function bindLesson(les) {
+  const ta = $("sql");
+  $("run").onclick = () => run(les);
+  ta.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(les); }
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault(); const s = ta.selectionStart;
+      ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = s + 2;
+    }
+  });
+  ta.addEventListener("input", () => { state.drafts[les.id] = ta.value; save(); });
+  $("clear-btn").onclick = () => { ta.value = ""; state.drafts[les.id] = ""; save(); ta.focus(); };
+  document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => {
+    ta.value = les.ex[+b.dataset.ex]; ta.focus();
+    if (!SQL) return;
+    // Run the example without grading it
+    const db = freshDb();
+    try { showTable(runOn(db, ta.value), "Example result"); feedback("info", `<div class="msg">That's the example. Now change it to solve the task.</div>`); }
+    catch (e) { feedback("bad", friendlyError(e.message)); }
+    finally { db.close(); }
+  });
+  document.querySelectorAll("[data-peek]").forEach(b => b.onclick = () => {
+    if (!SQL) return;
+    const db = freshDb();
+    try { showTable(runOn(db, `SELECT * FROM ${b.dataset.peek};`), `Peek: ${b.dataset.peek}`); } finally { db.close(); }
+  });
+  if (!les.play) {
+    $("hint-btn").onclick = () => { $("hint-box").innerHTML = `<div class="hint"><b>Hint</b><pre>${esc(les.hint)}</pre></div>`; };
+    $("reveal-btn").onclick = () => {
+      if (!state.revealed[les.id]) { state.revealed[les.id] = true; save(); }
+      $("hint-box").innerHTML = `<div class="hint"><b>Answer</b> ${state.done[les.id] ? "" : `<span style="color:var(--muted)">(now worth ${XP_REVEALED} XP instead of ${XP_CLEAN})</span>`}<pre>${esc(les.sol)}</pre></div>`;
+    };
+  } else {
+    const rb = $("reset-btn");
+    rb.onclick = () => {
+      $("reset-confirm").innerHTML = ` Sure? <button class="btn" type="button" id="reset-yes">Yes, reset</button>`;
+      $("reset-yes").onclick = () => { state = { current: LESSONS[0].id, done: {}, revealed: {}, drafts: {} }; save(); renderLesson(); };
+    };
+  }
+}
+
+/* ---- Boot ---- */
+function startApp() {
+  $("gate").hidden = true; $("app-root").hidden = false;
+  $("nav").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) go(b.dataset.id); });
+  $("nav-toggle").onclick = () => {
+    const open = $("app").classList.toggle("nav-open");
+    $("nav-toggle").setAttribute("aria-expanded", String(open));
+  };
+  renderLesson();
+  sqlReady.catch(err => feedback("bad", `<div class="msg">${esc(err.message)}</div>`));
+}
+
+let unlocked = false;
+try { unlocked = localStorage.getItem(KEY + "-open") === "1"; } catch (e) {}
+if (unlocked) startApp();
+$("gate-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("pw").value.trim().toLowerCase();
+  if (v === PASSWORD) {
+    try { localStorage.setItem(KEY + "-open", "1"); } catch (e) {}
+    startApp();
+  } else {
+    $("gate-err").textContent = "That's not it. Try again.";
+    const card = $("gate-form"); card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+    $("pw").select();
+  }
+});
+})();
+</script>
+
+</body>
+</html>
