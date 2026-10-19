@@ -1,4 +1,4 @@
-# Ferry Street SQL
+# Ferry Street
 
 A single-page, password-gated site for learning SQL from scratch. 25 lessons run against a real SQLite database (sql.js) in the browser, set in a small record shop.
 
