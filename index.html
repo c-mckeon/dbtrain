@@ -52,6 +52,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--ink);
@@ -1161,13 +1162,13 @@ function startApp() {
 }
 
 let unlocked = false;
-try { unlocked = localStorage.getItem(KEY + "-open") === "1"; } catch (e) {}
+try { unlocked = sessionStorage.getItem(KEY + "-open") === "1"; } catch (e) {}
 if (unlocked) startApp();
 $("gate-form").addEventListener("submit", e => {
   e.preventDefault();
   const v = $("pw").value.trim().toLowerCase();
   if (v === PASSWORD) {
-    try { localStorage.setItem(KEY + "-open", "1"); } catch (e) {}
+    try { sessionStorage.setItem(KEY + "-open", "1"); } catch (e) {}
     startApp();
   } else {
     $("gate-err").textContent = "That's not it. Try again.";
