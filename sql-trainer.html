@@ -173,6 +173,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   border-radius: 6px; padding: 3px 10px; font-size: .8rem;
 }
 .example button:hover { background: rgba(255,255,255,.1); }
+.example.py { flex-direction: column; gap: 4px; }
+.example.py pre { width: 100%; }
+.example .tag { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; font-family: var(--font-body); }
+.hint ul { padding-left: 1.2em; }
 
 .task {
   border: 2px dashed var(--accent); border-radius: var(--radius); padding: 14px 16px;
@@ -581,13 +585,220 @@ So "things with no match" = <code>LEFT JOIN</code> + <code>WHERE right.id IS NUL
 
  { sec: "Final round" },
  { id: "boss", title: "Boss level: best customer", boss: true,
-   story: "Last one, and it's a big one. I want to send a thank-you card to whoever has spent the most money here. Who is it, and how much?",
+   story: "Big one to finish the querying course. I want to send a thank-you card to whoever has spent the most money here. Who is it, and how much?",
    teach: `<p>Everything comes together: join <code>sales</code> to <code>albums</code> to get prices, work out <code>qty * price</code> for each sale,
 join <code>customers</code> for names, group by customer, sum, sort, and keep the top one.</p>`,
    ex: [],
    task: "Show the <code>name</code> and total spent (sum of <code>qty * price</code>) of the single biggest-spending customer.",
    sol: "SELECT c.name, SUM(s.qty * a.price) AS spent FROM sales s JOIN albums a ON s.album_id = a.id JOIN customers c ON s.customer_id = c.id GROUP BY c.id ORDER BY spent DESC LIMIT 1;", ordered: true,
    hint: "FROM sales s JOIN albums a ON ... JOIN customers c ON ...\nGROUP BY c.id\nORDER BY SUM(s.qty * a.price) DESC\nLIMIT 1" },
+
+ { sec: "Building apps" },
+ { id: "design", title: "Designing a table",
+   story: "We're hiring! I want to keep track of staff in the database. Can you set up a proper table, one that won't let me type in rubbish?",
+   teach: `<p>When you build an app, you design the tables before you write the code that uses them. For every column you decide three things: its <b>name</b>, the <b>type</b> of data it holds, and what's <b>allowed</b> in it.</p>
+<p>SQLite's main types are <code>INTEGER</code> (whole numbers), <code>REAL</code> (decimals) and <code>TEXT</code>. Bigger databases such as PostgreSQL add more, like <code>DATE</code>, <code>BOOLEAN</code> and <code>VARCHAR(100)</code>.</p>
+<p><b>Constraints</b> are rules the database enforces on every insert and update, whichever program sends it:</p>
+<ul><li><code>PRIMARY KEY</code> gives each row a unique id. <code>INTEGER PRIMARY KEY</code> numbers itself, so you never supply it.</li>
+<li><code>NOT NULL</code> means a value must be supplied.</li>
+<li><code>DEFAULT x</code> is the value used when an insert leaves the column out.</li></ul>
+<p>Why not just check in Python? Because bugs happen, quick scripts skip the checks, and several programs may share one database. A rule in the table catches all of them. In this track, your table is graded by running tests against it: some inserts should be allowed and some should be rejected.</p>`,
+   ex: ["CREATE TABLE suppliers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  country TEXT DEFAULT 'UK'\n);\nINSERT INTO suppliers (name) VALUES ('Vinyl Direct');\nSELECT * FROM suppliers;"],
+   py: "import sqlite3\n\ncon = sqlite3.connect(\"shop.db\")   # creates the file if it doesn't exist\ncon.execute(\"\"\"\n    CREATE TABLE IF NOT EXISTS staff (\n        id   INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL DEFAULT 'clerk'\n    )\n\"\"\")\ncon.commit()\n# IF NOT EXISTS lets this run every time your app starts without crashing.",
+   task: "Create a table <code>staff</code> with: <code>id</code> (self-numbering primary key), <code>name</code> (text, required) and <code>role</code> (text, required, defaults to <code>'clerk'</code>).",
+   probes: [
+     ["Add Jo with no role given", "INSERT INTO staff (name) VALUES ('Jo');"],
+     ["Jo's role", "SELECT role FROM staff WHERE name = 'Jo';"],
+     ["Add Sam as manager", "INSERT INTO staff (name, role) VALUES ('Sam', 'manager');"],
+     ["Add someone with no name", "INSERT INTO staff (role) VALUES ('clerk');"],
+     ["Add Kit with role NULL", "INSERT INTO staff (name, role) VALUES ('Kit', NULL);"],
+     ["Ids handed out", "SELECT id FROM staff ORDER BY id;"]],
+   sol: "CREATE TABLE staff (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  role TEXT NOT NULL DEFAULT 'clerk'\n);",
+   hint: "CREATE TABLE staff (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  role TEXT ... DEFAULT ...\n);" },
+
+ { id: "unique", title: "No duplicates with UNIQUE",
+   story: "I'm starting a newsletter. Last time I used a spreadsheet and half the list got every email twice.",
+   teach: `<p><code>UNIQUE</code> means no two rows may share a value in that column. Insert a duplicate and the database refuses with an error.</p>
+<p>The database is the right place for this rule. If your Python asks "is this email already there?" and then inserts, two sign-ups arriving at the same moment can both pass the check. The database's own check can't be raced like that.</p>
+<p>Two details:</p>
+<ul><li>UNIQUE still allows several NULLs, because NULL means "unknown" and two unknowns don't count as equal. Add <code>NOT NULL</code> if the value is required.</li>
+<li>You can make a <i>combination</i> unique: <code>UNIQUE (customer_id, album_id)</code> allows each pair only once.</li></ul>
+<p>In Python, a broken rule arrives as a <code>sqlite3.IntegrityError</code>. Catch it and turn it into a friendly message instead of a crash.</p>`,
+   ex: ["CREATE TABLE codes (id INTEGER PRIMARY KEY, code TEXT UNIQUE);\nINSERT INTO codes (code) VALUES ('A1');\nINSERT INTO codes (code) VALUES ('A1');"],
+   py: "email = input(\"Your email: \")\ntry:\n    with con:\n        con.execute(\"INSERT INTO newsletter (email) VALUES (?)\", (email,))\n    print(\"Thanks for signing up!\")\nexcept sqlite3.IntegrityError:\n    print(\"You're already on the list.\")",
+   task: "Create a table <code>newsletter</code> with <code>id</code> (primary key) and <code>email</code> (text, required, no duplicates).",
+   probes: [
+     ["Sign up maya@example.com", "INSERT INTO newsletter (email) VALUES ('maya@example.com');"],
+     ["Sign up tom@example.com", "INSERT INTO newsletter (email) VALUES ('tom@example.com');"],
+     ["Sign up maya@example.com again", "INSERT INTO newsletter (email) VALUES ('maya@example.com');"],
+     ["Sign up with no email", "INSERT INTO newsletter (email) VALUES (NULL);"],
+     ["Rows in the table", "SELECT COUNT(*) FROM newsletter;"]],
+   sol: "CREATE TABLE newsletter (\n  id INTEGER PRIMARY KEY,\n  email TEXT NOT NULL UNIQUE\n);",
+   hint: "A column can have several constraints: email TEXT NOT NULL UNIQUE" },
+
+ { id: "check", title: "Custom rules with CHECK",
+   story: "We're selling gift cards. The old till once let a card go to minus £20. Never again.",
+   teach: `<p><code>CHECK (condition)</code> lets you write your own rule. Every insert <i>and</i> every update must leave the condition true, or the change is rejected.</p>
+<ul><li><code>CHECK (balance &gt;= 0)</code></li>
+<li><code>CHECK (stars BETWEEN 1 AND 5)</code></li>
+<li><code>CHECK (status IN ('open', 'shipped', 'cancelled'))</code></li></ul>
+<p>Because it covers updates, a buggy "spend £30 from a £10 card" fails with an error instead of quietly leaving a negative balance.</p>
+<p>One catch: a CHECK passes when the value is NULL, because the answer is "unknown" rather than false. Pair it with <code>NOT NULL</code> when the value is required.</p>`,
+   ex: ["CREATE TABLE ratings (id INTEGER PRIMARY KEY, stars INTEGER CHECK (stars BETWEEN 1 AND 5));\nINSERT INTO ratings (stars) VALUES (4);\nINSERT INTO ratings (stars) VALUES (11);"],
+   py: "def spend(code, amount):\n    try:\n        with con:\n            con.execute(\n                \"UPDATE gift_cards SET balance = balance - ? WHERE code = ?\",\n                (amount, code),\n            )\n    except sqlite3.IntegrityError:\n        print(\"Not enough left on that card.\")",
+   task: "Create <code>gift_cards</code> with <code>id</code> (primary key), <code>code</code> (text, required, unique) and <code>balance</code> (decimal, required, never below 0).",
+   probes: [
+     ["New card GIFT-01 with £25", "INSERT INTO gift_cards (code, balance) VALUES ('GIFT-01', 25);"],
+     ["New card GIFT-02 with -£5", "INSERT INTO gift_cards (code, balance) VALUES ('GIFT-02', -5);"],
+     ["Spend £30 from GIFT-01", "UPDATE gift_cards SET balance = balance - 30 WHERE code = 'GIFT-01';"],
+     ["Spend £10 from GIFT-01", "UPDATE gift_cards SET balance = balance - 10 WHERE code = 'GIFT-01';"],
+     ["GIFT-01 balance", "SELECT balance FROM gift_cards WHERE code = 'GIFT-01';"],
+     ["Another card called GIFT-01", "INSERT INTO gift_cards (code, balance) VALUES ('GIFT-01', 5);"],
+     ["Card with no balance", "INSERT INTO gift_cards (code) VALUES ('GIFT-03');"]],
+   sol: "CREATE TABLE gift_cards (\n  id INTEGER PRIMARY KEY,\n  code TEXT NOT NULL UNIQUE,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);",
+   hint: "balance REAL NOT NULL CHECK (balance >= 0)" },
+
+ { id: "fk", title: "Foreign keys", fk: true,
+   story: "Customers want to leave reviews. Last week someone's script saved a review for an album we've never stocked.",
+   teach: `<p>In the first course, <code>albums.artist_id</code> pointed at <code>artists.id</code>, but nothing stopped anyone typing artist_id 999. A <b>foreign key</b> makes the link official:</p>
+<p><code>album_id INTEGER REFERENCES albums(id)</code></p>
+<p>Now the database refuses:</p>
+<ul><li>a review for an album that doesn't exist</li>
+<li>deleting an album that still has reviews, which would leave them pointing at nothing</li></ul>
+<p>You can choose what a delete does instead: <code>ON DELETE CASCADE</code> deletes the reviews too, and <code>ON DELETE SET NULL</code> blanks the link. With neither, the delete is refused.</p>
+<p><b>SQLite quirk:</b> foreign keys are only enforced if each connection runs <code>PRAGMA foreign_keys = ON;</code>. This lesson turns it on for you. In your own Python, do it right after connecting. PostgreSQL and most other databases always enforce them.</p>`,
+   ex: ["SELECT al.title, ar.name\nFROM albums al JOIN artists ar ON al.artist_id = ar.id\nLIMIT 3;"],
+   py: "con = sqlite3.connect(\"shop.db\")\ncon.execute(\"PRAGMA foreign_keys = ON\")   # every time you connect\n\ntry:\n    with con:\n        con.execute(\"INSERT INTO reviews (album_id, stars) VALUES (?, ?)\", (album_id, stars))\nexcept sqlite3.IntegrityError as e:\n    print(\"Couldn't save review:\", e)",
+   task: "Create <code>reviews</code> with <code>id</code> (primary key), <code>album_id</code> (required, must point to a real album in <code>albums</code>) and <code>stars</code> (whole number, required, 1 to 5).",
+   probes: [
+     ["5-star review of Snowline (album 8)", "INSERT INTO reviews (album_id, stars) VALUES (8, 5);"],
+     ["Review of album 999", "INSERT INTO reviews (album_id, stars) VALUES (999, 4);"],
+     ["Review with no album", "INSERT INTO reviews (album_id, stars) VALUES (NULL, 4);"],
+     ["9-star review of Snowline", "INSERT INTO reviews (album_id, stars) VALUES (8, 9);"],
+     ["Delete Snowline (it has a review)", "DELETE FROM albums WHERE id = 8;"],
+     ["Delete Woodsmoke (no reviews)", "DELETE FROM albums WHERE id = 9;"]],
+   sol: "CREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  album_id INTEGER NOT NULL REFERENCES albums(id),\n  stars INTEGER NOT NULL CHECK (stars BETWEEN 1 AND 5)\n);",
+   hint: "album_id INTEGER NOT NULL REFERENCES albums(id)\nstars INTEGER NOT NULL CHECK (...)" },
+
+ { id: "many-to-many", title: "Many-to-many links", fk: true,
+   story: "I want to tag albums: 'rainy day', 'staff pick' and so on. An album can have lots of tags and a tag can be on lots of albums. Where does that even go?",
+   teach: `<p>Links between tables come in a few shapes:</p>
+<ul><li><b>One-to-many:</b> one artist has many albums. Put <code>artist_id</code> on the albums table, as the shop already does.</li>
+<li><b>Many-to-many:</b> albums have many tags and tags have many albums. Neither table can hold the link by itself.</li></ul>
+<p>For many-to-many you add a <b>junction table</b> holding one row per link: (album 8, tag 1), (album 8, tag 2), (album 12, tag 2). Its primary key is the <i>pair</i> of columns, <code>PRIMARY KEY (album_id, tag_id)</code>, so the same link can't be added twice.</p>
+<p>Tempted to store <code>'rainy day,staff pick'</code> as text in one column? Don't. You can't join on it, renaming a tag means editing every album, and nothing stops typos. Splitting data so each fact is stored exactly once is called <b>normalisation</b>, and it's the heart of good table design.</p>`,
+   ex: ["CREATE TABLE pairs (a INTEGER, b INTEGER, PRIMARY KEY (a, b));\nINSERT INTO pairs VALUES (1, 1), (1, 2), (2, 1);\nSELECT * FROM pairs;"],
+   py: "def tags_for(album_id):\n    rows = con.execute(\"\"\"\n        SELECT t.name\n        FROM album_tags l\n        JOIN tags t ON t.id = l.tag_id\n        WHERE l.album_id = ?\n        ORDER BY t.name\n    \"\"\", (album_id,)).fetchall()\n    return [name for (name,) in rows]\n\n# In an ORM like SQLAlchemy this is relationship(secondary=album_tags),\n# but underneath it's exactly this junction table.",
+   task: "Create <code>tags</code> (<code>id</code> primary key, <code>name</code> required and unique) and <code>album_tags</code> (<code>album_id</code> pointing to albums, <code>tag_id</code> pointing to tags, both required, with the pair as the primary key).",
+   probes: [
+     ["Add tag 'rainy day'", "INSERT INTO tags (name) VALUES ('rainy day');"],
+     ["Add tag 'staff pick'", "INSERT INTO tags (name) VALUES ('staff pick');"],
+     ["Add tag 'rainy day' again", "INSERT INTO tags (name) VALUES ('rainy day');"],
+     ["Tag Snowline as rainy day", "INSERT INTO album_tags (album_id, tag_id) VALUES (8, 1);"],
+     ["Tag Snowline as staff pick", "INSERT INTO album_tags (album_id, tag_id) VALUES (8, 2);"],
+     ["Tag Accra Nights as staff pick", "INSERT INTO album_tags (album_id, tag_id) VALUES (12, 2);"],
+     ["Tag Snowline as rainy day again", "INSERT INTO album_tags (album_id, tag_id) VALUES (8, 1);"],
+     ["Tag Snowline with tag 99", "INSERT INTO album_tags (album_id, tag_id) VALUES (8, 99);"],
+     ["Snowline's tags", "SELECT t.name FROM album_tags l JOIN tags t ON t.id = l.tag_id WHERE l.album_id = 8 ORDER BY t.name;"]],
+   sol: "CREATE TABLE tags (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE\n);\nCREATE TABLE album_tags (\n  album_id INTEGER NOT NULL REFERENCES albums(id),\n  tag_id INTEGER NOT NULL REFERENCES tags(id),\n  PRIMARY KEY (album_id, tag_id)\n);",
+   hint: "Two CREATE TABLE statements. The second ends with:\n  PRIMARY KEY (album_id, tag_id)" },
+
+ { id: "migrate", title: "Changing tables: migrations",
+   story: "Customers want a text when new stock lands. We need a phone number column and an opt-in setting, without losing two years of customer data.",
+   teach: `<p>Your tables will change as your app grows. You can't drop and recreate them, because the data in them is real. <code>ALTER TABLE</code> changes a table in place:</p>
+<ul><li><code>ALTER TABLE customers ADD COLUMN phone TEXT;</code></li>
+<li><code>ALTER TABLE customers RENAME COLUMN city TO town;</code></li>
+<li><code>ALTER TABLE customers DROP COLUMN phone;</code></li></ul>
+<p>Existing rows get NULL in a new column, or its DEFAULT if it has one. That's why you can only add a <code>NOT NULL</code> column if you also give it a DEFAULT: otherwise every existing row would break the rule.</p>
+<p>Each change like this is a <b>migration</b>. In a real project, migrations are kept as numbered files in your code, so every copy of the database (your laptop, the live server, a teammate's machine) gets the same changes in the same order. Tools handle this for you: <b>Alembic</b> with SQLAlchemy, or Django's <code>makemigrations</code> and <code>migrate</code>.</p>`,
+   ex: ["ALTER TABLE artists ADD COLUMN website TEXT;\nSELECT * FROM artists;"],
+   py: "# A tiny homemade migration runner.\n# PRAGMA user_version is a spare number SQLite keeps for you.\nMIGRATIONS = [\n    \"ALTER TABLE customers ADD COLUMN phone TEXT\",\n    \"ALTER TABLE customers ADD COLUMN alerts INTEGER NOT NULL DEFAULT 0\",\n]\n\ndone = con.execute(\"PRAGMA user_version\").fetchone()[0]\nfor number, sql in enumerate(MIGRATIONS[done:], start=done + 1):\n    with con:\n        con.execute(sql)\n        con.execute(f\"PRAGMA user_version = {number}\")  # our own number, not user input",
+   task: "Add two columns to <code>customers</code>: <code>phone</code> (text) and <code>alerts</code> (whole number, required, default 0).",
+   requires: [["ALTER\\s+TABLE", "Use ALTER TABLE so the existing customers are kept."]],
+   probes: [
+     ["Customers still there", "SELECT COUNT(*) FROM customers;"],
+     ["Maya's alerts setting", "SELECT alerts FROM customers WHERE name = 'Maya Chen';"],
+     ["Save Maya's phone number", "UPDATE customers SET phone = '0113 496 0000' WHERE name = 'Maya Chen';"],
+     ["Turn alerts on for Maya", "UPDATE customers SET alerts = 1 WHERE name = 'Maya Chen';"],
+     ["Set Tom's alerts to NULL", "UPDATE customers SET alerts = NULL WHERE name = 'Tom Reilly';"],
+     ["Customers with alerts on", "SELECT name, phone FROM customers WHERE alerts = 1;"]],
+   sol: "ALTER TABLE customers ADD COLUMN phone TEXT;\nALTER TABLE customers ADD COLUMN alerts INTEGER NOT NULL DEFAULT 0;",
+   hint: "Two statements:\nALTER TABLE customers ADD COLUMN phone TEXT;\nALTER TABLE customers ADD COLUMN alerts ... ;" },
+
+ { id: "index", title: "Speed with indexes",
+   story: "The website's 'your orders' page is getting slow. Every time someone logs in, we look up their sales.",
+   teach: `<p>To find one customer's sales, the database normally reads <i>every</i> row in <code>sales</code>. That's a <b>full table scan</b>: fine for 28 rows, painful for 28 million.</p>
+<p>An <b>index</b> works like the index at the back of a book: a sorted list of values with a pointer to each row. With an index on <code>sales(customer_id)</code> the database jumps straight to the right rows.</p>
+<ul><li>Index columns you often use in <code>WHERE</code>, <code>JOIN ... ON</code> or <code>ORDER BY</code>. Foreign key columns are the classic case.</li>
+<li>Primary keys and UNIQUE columns get an index automatically.</li>
+<li>Don't index everything. Each index takes space and makes inserts and updates a little slower, because it has to be kept up to date.</li></ul>
+<p>Put <code>EXPLAIN QUERY PLAN</code> in front of a query to see how it will run. <code>SCAN</code> means it reads everything. <code>SEARCH ... USING INDEX</code> means it jumps straight there. Run both examples below and compare.</p>`,
+   ex: ["EXPLAIN QUERY PLAN\nSELECT * FROM sales WHERE customer_id = 4;", "CREATE INDEX idx_demo ON sales(customer_id);\nEXPLAIN QUERY PLAN\nSELECT * FROM sales WHERE customer_id = 4;"],
+   py: "con.execute(\"CREATE INDEX IF NOT EXISTS idx_sales_customer ON sales(customer_id)\")\n\n# In SQLAlchemy you'd write:  customer_id = mapped_column(ForeignKey(...), index=True)\n# In Django:                  customer = models.ForeignKey(..., db_index=True)  (on by default)",
+   task: "Create an index called <code>idx_sales_customer</code> on the <code>customer_id</code> column of <code>sales</code>.",
+   mutate: true, verifyLabel: "indexes in the database after your change",
+   verify: "SELECT m.name AS index_name, m.tbl_name AS on_table, i.name AS column_name FROM sqlite_master m JOIN pragma_index_info(m.name) i WHERE m.type = 'index' AND m.name NOT LIKE 'sqlite_%' ORDER BY m.name, i.seqno;",
+   sol: "CREATE INDEX idx_sales_customer ON sales(customer_id);",
+   hint: "CREATE INDEX name ON table(column);" },
+
+ { id: "transaction", title: "All or nothing: transactions",
+   story: "When we sell a record, two things must happen: log the sale and take one off the stock. If the power cuts out between them, the numbers stop adding up.",
+   teach: `<p>A <b>transaction</b> groups several statements into one all-or-nothing unit. Either every change is saved, or none is.</p>
+<ul><li><code>BEGIN;</code> starts a transaction</li>
+<li><code>COMMIT;</code> saves everything since BEGIN</li>
+<li><code>ROLLBACK;</code> throws it all away</li></ul>
+<p>Until you commit, other connections can't see your half-finished changes. If your program crashes mid-way, the database undoes them. This is the "A" for <b>atomic</b> in ACID, the set of guarantees that makes databases trustworthy.</p>
+<p><b>In Python</b>, <code>sqlite3</code> starts a transaction for you when you first change data, and nothing is saved until <code>con.commit()</code>. Forgetting to commit is the classic "my data vanished" bug. The tidy way is <code>with con:</code>, which commits when the block finishes and rolls back if anything inside raises an error.</p>`,
+   ex: ["BEGIN;\nUPDATE albums SET price = 0;\nROLLBACK;\nSELECT title, price FROM albums;"],
+   py: "def sell(customer_id, album_id, day):\n    with con:   # one transaction: both saved, or neither\n        con.execute(\n            \"INSERT INTO sales (customer_id, album_id, sold_on, qty) VALUES (?, ?, ?, 1)\",\n            (customer_id, album_id, day),\n        )\n        con.execute(\"UPDATE albums SET stock = stock - 1 WHERE id = ?\", (album_id,))\n\nsell(11, 8, \"2024-10-20\")",
+   task: "Martin Duff (customer 11) buys one copy of Snowline (album 8) on 2024-10-20. Inside one transaction, add the sale to <code>sales</code> and reduce Snowline's stock by 1.",
+   mutate: true, verifyLabel: "what the shop looks like after your transaction",
+   verify: "SELECT (SELECT COUNT(*) FROM sales WHERE customer_id = 11 AND album_id = 8 AND sold_on = '2024-10-20' AND qty = 1) AS martins_sale, (SELECT stock FROM albums WHERE id = 8) AS snowline_stock, (SELECT COUNT(*) FROM sales) AS total_sales;",
+   requires: [["\\bBEGIN\\b", "Start with BEGIN; so both changes are one transaction."], ["\\bCOMMIT\\b", "Finish with COMMIT; to save the transaction."]],
+   sol: "BEGIN;\nINSERT INTO sales (customer_id, album_id, sold_on, qty) VALUES (11, 8, '2024-10-20', 1);\nUPDATE albums SET stock = stock - 1 WHERE id = 8;\nCOMMIT;",
+   hint: "BEGIN;\nINSERT INTO sales (...) VALUES (...);\nUPDATE albums SET stock = stock - 1 WHERE ...;\nCOMMIT;" },
+
+ { id: "upsert", title: "Insert or update: upserts",
+   setup: "CREATE TABLE plays (album_id INTEGER PRIMARY KEY, count INTEGER NOT NULL);\nINSERT INTO plays VALUES (8, 3), (14, 10);",
+   story: "I've put a listening station in the shop. Each time someone plays an album, the app adds 1 to its play count, even the first time it's played. I've made a plays table already.",
+   teach: `<p>Apps constantly need "add this row, or if it's already there, update it". Doing that in Python as <i>check, then insert or update</i> takes two trips to the database and can go wrong when two requests arrive together.</p>
+<p>An <b>upsert</b> does it in one statement. It needs a PRIMARY KEY or UNIQUE column to spot the clash:</p>
+<p><code>INSERT INTO plays (album_id, count) VALUES (8, 1)<br>ON CONFLICT (album_id) DO UPDATE SET count = count + 1;</code></p>
+<p>If album 8 has no row yet, it's inserted with a count of 1. If it has one, the update runs instead. Inside <code>DO UPDATE</code>, plain <code>count</code> means the value already in the table, and <code>excluded.count</code> means the value you tried to insert.</p>
+<p>Its cousin <code>INSERT OR IGNORE</code> simply skips rows that would clash. PostgreSQL uses the same <code>ON CONFLICT</code> syntax; MySQL calls it <code>ON DUPLICATE KEY UPDATE</code>.</p>
+<p>The <code>plays</code> table already exists in this lesson: album 8 has 3 plays and album 14 has 10.</p>`,
+   ex: ["INSERT INTO plays (album_id, count) VALUES (14, 50)\nON CONFLICT (album_id) DO UPDATE SET count = excluded.count;\nSELECT * FROM plays;"],
+   py: "def record_play(album_id):\n    with con:\n        con.execute(\"\"\"\n            INSERT INTO plays (album_id, count) VALUES (?, 1)\n            ON CONFLICT (album_id) DO UPDATE SET count = count + 1\n        \"\"\", (album_id,))",
+   task: "Record one play for Snowline (album 8, already has a row) and one for Woodsmoke (album 9, never played) using upserts.",
+   mutate: true, verifyLabel: "plays table after your change",
+   verify: "SELECT album_id, count FROM plays ORDER BY album_id;",
+   requires: [["ON\\s+CONFLICT", "Use INSERT ... ON CONFLICT ... DO UPDATE, so the same statement works whether or not the row exists."]],
+   sol: "INSERT INTO plays (album_id, count) VALUES (8, 1)\nON CONFLICT (album_id) DO UPDATE SET count = count + 1;\nINSERT INTO plays (album_id, count) VALUES (9, 1)\nON CONFLICT (album_id) DO UPDATE SET count = count + 1;",
+   hint: "Write the same upsert twice, once with 8 and once with 9:\nINSERT INTO plays (album_id, count) VALUES (8, 1)\nON CONFLICT (album_id) DO UPDATE SET count = count + 1;" },
+
+ { id: "inject", title: "Boss level: break in, then lock up", boss: true, inject: true,
+   template: "SELECT name, email FROM customers WHERE name = '{input}'",
+   story: "A freelancer built the customer search on our website and swore it was safe. Prove them wrong before someone else does.",
+   teach: `<p>Here's the freelancer's Python. It pastes whatever the visitor types straight into the SQL text:</p>
+<div class="example py"><span class="tag">Python</span><pre>name = request.args["name"]     # whatever the visitor typed
+sql = f"SELECT name, email FROM customers WHERE name = '{name}'"
+rows = con.execute(sql).fetchall()</pre></div>
+<p>Search for <code>Maya Chen</code> and you get Maya. But the visitor now controls part of the SQL. A quote character ends the text early, and anything typed after it is run as SQL. This is <b>SQL injection</b>, one of the most common ways real websites get breached.</p>
+<p><b>Your mission:</b> type something into the search box that makes the site show <i>every</i> customer's email. Once you're in, you'll see the fix.</p>`,
+   ex: [],
+   win: `<b>Now lock it up. The fix is a placeholder.</b>
+<pre>rows = con.execute(
+    "SELECT name, email FROM customers WHERE name = ?",
+    (name,),
+).fetchall()</pre>
+<p style="margin:8px 0 0">The SQL and the value travel to the database separately, so a quote in the value is just a quote, never code.</p>
+<ul style="margin:6px 0 0"><li>Placeholders are <code>?</code> in sqlite3 and <code>%s</code> in psycopg (PostgreSQL). Named ones look like <code>:name</code>.</li>
+<li>They work for values only. Table and column names can't be placeholders, so if those come from users, pick them from a fixed list in your code.</li>
+<li>ORMs like SQLAlchemy and Django use placeholders for you, which is a big reason to use them.</li>
+<li>Rule of thumb: if you see an f-string, <code>+</code> or <code>.format()</code> building SQL with outside data, it's a bug.</li></ul>`,
+   task: "Type a search that makes the site list all 12 customers.",
+   sol: "' OR '1'='1",
+   hint: "End the name early with a quote, then add a condition that's always true. For example:\n' OR '1'='1" },
 
  { id: "play", title: "Free play", play: true,
    story: "You've earned the keys to the shop. Ask the database anything you like.",
@@ -599,7 +810,7 @@ join <code>customers</code> for names, group by customer, sum, sort, and keep th
 const LESSONS = L.filter(x => x.id);
 const CHECKABLE = LESSONS.filter(x => !x.play);
 const XP_CLEAN = 15, XP_REVEALED = 5;
-const RANKS = [[0,"Browser"],[30,"Crate Digger"],[90,"Shop Assistant"],[170,"Record Buyer"],[260,"Data Wrangler"],[340,"Query Wizard"]];
+const RANKS = [[0,"Browser"],[30,"Crate Digger"],[90,"Shop Assistant"],[170,"Record Buyer"],[260,"Data Wrangler"],[340,"Query Wizard"],[440,"Database Builder"]];
 
 /* ---- Saved progress (per browser, best effort) ---- */
 const KEY = "ferry-street-sql-v1";
@@ -691,16 +902,17 @@ function renderLesson() {
       <div class="bubble"><div class="who">Dot, shop owner</div><p>${esc(les.story)}</p></div>
     </div>
     <section class="teach">${les.teach}
-      ${les.ex.map((e, i) => `<div class="example"><pre>${esc(e)}</pre><button type="button" data-ex="${i}">Try it</button></div>`).join("")}
+      ${(les.ex || []).map((e, i) => `<div class="example"><pre>${esc(e)}</pre><button type="button" data-ex="${i}">Try it</button></div>`).join("")}
+      ${les.py ? `<div class="example py"><span class="tag">In Python</span><pre>${esc(les.py)}</pre></div>` : ""}
     </section>
     ${les.task ? `<div class="task"><span class="eyebrow">Your task</span><b>${les.task}</b></div>` : ""}
     <details class="schema"${idx < 2 ? " open" : ""}><summary>Shop database: 4 tables (tap a name to peek)</summary><div class="schema-grid">${schemaHtml}</div></details>
     <div class="editor-wrap">
-      <div class="editor-bar"><div class="dots"><i></i><i></i><i></i></div><span>SQLite · Ctrl/⌘ + Enter to run</span></div>
-      <textarea id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Type your SQL here..." aria-label="SQL editor"></textarea>
+      <div class="editor-bar"><div class="dots"><i></i><i></i><i></i></div><span>${les.inject ? "Website search box · Ctrl/⌘ + Enter to search" : "SQLite · Ctrl/⌘ + Enter to run"}</span></div>
+      <textarea id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="${les.inject ? "Search customers by name..." : "Type your SQL here..."}" aria-label="${les.inject ? "Website search box" : "SQL editor"}"${les.inject ? ' style="min-height:70px"' : ""}></textarea>
     </div>
     <div class="actions">
-      <button class="btn btn-primary" type="button" id="run">${les.play ? "Run" : "Run &amp; check"} <kbd>Ctrl↵</kbd></button>
+      <button class="btn btn-primary" type="button" id="run">${les.play ? "Run" : les.inject ? "Search" : "Run &amp; check"} <kbd>Ctrl↵</kbd></button>
       ${les.play ? "" : `<button class="btn" type="button" id="hint-btn">Hint</button><button class="btn btn-ghost" type="button" id="reveal-btn">Show answer</button>`}
       <span class="spacer"></span>
       <button class="btn btn-ghost" type="button" id="clear-btn">Clear</button>
@@ -733,9 +945,16 @@ function showTable(res, caption) {
 
 function feedback(kind, html) { $("feedback").innerHTML = html ? `<div class="feedback ${kind}">${html}</div>` : ""; }
 
-function friendlyError(msg) {
+function builtHtml(sql) {
+  return `<div class="cap"><span>The SQL the website ran</span></div><div class="example"><pre>${esc(sql)}</pre></div>`;
+}
+
+function friendlyError(msg, les) {
   let tip = "";
-  if (/no such column/i.test(msg)) tip = "Check the spelling of column names, and put text values in 'single quotes'.";
+  if (les && les.inject) tip = "Your search broke the website's SQL. That crack is exactly what attackers look for. Now make it run cleanly but return everyone.";
+  else if (/constraint failed/i.test(msg)) tip = "A table rule refused this change. That's the database protecting your data.";
+  else if (/already exists/i.test(msg)) tip = "Every run starts from a fresh shop, so this means your SQL creates the same thing twice.";
+  else if (/no such column/i.test(msg)) tip = "Check the spelling of column names, and put text values in 'single quotes'.";
   else if (/no such table/i.test(msg)) tip = "Check the table name. Open the database panel to see them all.";
   else if (/syntax error/i.test(msg)) tip = "Something is in the wrong place. Check commas between columns and the order: SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT.";
   else if (/incomplete input/i.test(msg)) tip = "The query ends too early. Missing a closing bracket or quote?";
@@ -745,34 +964,99 @@ function friendlyError(msg) {
 
 function spin(on) { $("logo").classList.toggle("spin", on); }
 
+/* A database prepared for this lesson (foreign keys, lesson tables) */
+function lessonDb(les) {
+  const db = freshDb();
+  if (les.fk) db.exec("PRAGMA foreign_keys = ON;");
+  if (les.setup) db.exec(les.setup);
+  return db;
+}
+
+/* Run a lesson's checks against a database after someone's SQL ran */
+function runProbes(db, probes) {
+  const values = probes.map(([label, sql]) => {
+    try {
+      const r = db.exec(sql);
+      if (/^\s*SELECT/i.test(sql)) {
+        const res = lastResult(r);
+        const flat = res.values.map(row => row.map(v => v === null ? "NULL" : normCell(v)).join(" / ")).join(", ");
+        return [label, flat || "(no rows)", ""];
+      }
+      return [label, "Allowed", ""];
+    } catch (e) { return [label, "Rejected", e.message]; }
+  });
+  return { columns: ["Test", "Result", "Database said"], values };
+}
+
+function execLesson(les, sql) {
+  const db = lessonDb(les);
+  try {
+    if (les.inject) {
+      const built = les.template.replace("{input}", sql);
+      return { res: runOn(db, built), caption: "What the website showed", built };
+    }
+    const res = runOn(db, sql);
+    if (les.probes) return { res: runProbes(db, les.probes), caption: "Tests run against your table" };
+    if (les.mutate) return { res: runOn(db, les.verify), caption: les.verifyLabel };
+    return { res, caption: "Your result" };
+  } finally { db.close(); }
+}
+
+function compareProbes(exp, got) {
+  for (let i = 0; i < exp.values.length; i++) {
+    const [label, want] = exp.values[i], have = got.values[i][1], said = got.values[i][2];
+    if (want === have) continue;
+    let tip = "Re-read the task and compare it with your CREATE TABLE.";
+    if (want === "Rejected" && have === "Allowed") tip = "Your table is missing a rule, so it let this through.";
+    else if (want === "Allowed" && have === "Rejected") tip = `Your table refused something it should allow. The database said: ${said}`;
+    return { ok: false, why: `Test "${label}": should be ${want}, yours gave ${have}.`, tip };
+  }
+  return { ok: true };
+}
+
 function run(les) {
-  const sql = $("sql").value.trim();
-  state.drafts[les.id] = $("sql").value; save();
-  if (!sql) { feedback("info", `<div class="msg">Type a query first. Stuck? Press Hint.</div>`); return; }
+  const raw = $("sql").value;
+  const sql = les.inject ? raw.replace(/\n+$/, "") : raw.trim();
+  state.drafts[les.id] = raw; save();
+  if (!sql.trim()) { feedback("info", `<div class="msg">${les.inject ? "Type something into the search box first." : "Type a query first."} Stuck? Press Hint.</div>`); return; }
   if (!SQL) { feedback("info", `<div class="msg">The SQL engine is still loading. Try again in a second.</div>`); return; }
   spin(true);
   setTimeout(() => spin(false), 600);
 
-  let got, db = freshDb();
-  try {
-    got = runOn(db, sql);
-    if (les.mutate) {
-      try { got = runOn(db, les.verify); }
-      catch (e) { db.close(); feedback("bad", friendlyError(e.message)); $("results").innerHTML = ""; return; }
-    }
-  } catch (e) { db.close(); feedback("bad", friendlyError(e.message)); $("results").innerHTML = ""; return; }
-  db.close();
+  let out;
+  try { out = execLesson(les, sql); }
+  catch (e) {
+    const built = les.inject ? les.template.replace("{input}", sql) : "";
+    feedback("bad", friendlyError(e.message, les));
+    $("results").innerHTML = built ? builtHtml(built) : "";
+    return;
+  }
+  if (les.play) { showTable(out.res, out.caption); feedback("", ""); return; }
 
-  showTable(got, les.mutate ? les.verifyLabel : "Your result");
-  if (les.play) { feedback("", ""); return; }
-
-  const edb = freshDb();
   let exp;
-  try { exp = les.mutate ? (edb.exec(les.sol), runOn(edb, les.verify)) : runOn(edb, les.sol); }
-  finally { edb.close(); }
+  try { exp = execLesson(les, les.sol).res; }
+  catch (e) { feedback("bad", `<div class="msg">This lesson's own answer failed: ${esc(e.message)}</div>`); return; }
 
-  const c = compare(exp, got, !!les.ordered || !!les.mutate);
+  let c;
+  if (les.probes) {
+    showTable({ columns: ["Test", "Should be", "Yours", "Database said"], values: out.res.values.map((r, i) => [r[0], exp.values[i][1], r[1], r[2]]) }, out.caption);
+    c = compareProbes(exp, out.res);
+  } else {
+    showTable(out.res, out.caption);
+    c = compare(exp, out.res, !!les.ordered || !!les.mutate);
+    if (!c.ok && les.inject) {
+      const n = out.res.values.length;
+      c = { ok: false, why: `The site showed ${n} customer${n === 1 ? "" : "s"}.`, tip: "Make it show all 12. Look at the SQL it built: your text lands between the two quotes." };
+    }
+  }
+  if (out.built) $("results").insertAdjacentHTML("afterbegin", builtHtml(out.built));
+  if (c.ok && les.requires) {
+    for (const [re, msg] of les.requires) {
+      if (!new RegExp(re, "i").test(sql)) { c = { ok: false, why: "Right result, but not the technique this lesson is about.", tip: msg }; break; }
+    }
+  }
   if (c.ok) {
+    if (les.win) $("hint-box").innerHTML = `<div class="hint">${les.win}</div>`;
     const first = !state.done[les.id];
     if (first) state.done[les.id] = state.revealed[les.id] ? XP_REVEALED : XP_CLEAN;
     save();
@@ -832,7 +1116,7 @@ function bindLesson(les) {
     ta.value = les.ex[+b.dataset.ex]; ta.focus();
     if (!SQL) return;
     // Run the example without grading it
-    const db = freshDb();
+    const db = lessonDb(les);
     try { showTable(runOn(db, ta.value), "Example result"); feedback("info", `<div class="msg">That's the example. Now change it to solve the task.</div>`); }
     catch (e) { feedback("bad", friendlyError(e.message)); }
     finally { db.close(); }
