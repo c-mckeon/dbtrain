@@ -23,6 +23,10 @@
   --editor-fg: #e9eff8;
   --editor-muted: #8fa0bb;
   --vinyl: #15213a;
+  --hl-kw: #f0b73a;
+  --hl-str: #8fd3a8;
+  --hl-com: #8193b2;
+  --hl-num: #f4a38f;
   --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -227,6 +231,86 @@ td.num { text-align: right; font-family: var(--font-mono); font-size: .85rem; }
 
 .finale { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; }
 
+/* ---------- Tabs ---------- */
+.topbar { flex-wrap: wrap; }
+.tabs { display: flex; gap: 3px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+.tabs button { border: 0; background: transparent; color: var(--muted); padding: 6px 14px; border-radius: 7px; font-weight: 700; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+
+/* ---------- Step lessons (Objects, Craft) ---------- */
+.progress-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.progress-dots i { width: 22px; height: 6px; border-radius: 99px; background: var(--line); }
+.progress-dots i.on { background: var(--accent); }
+.progress-dots i.ok { background: var(--good); }
+.steps { display: grid; gap: 18px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.step.read { background: transparent; border: 0; padding: 0; }
+.step.solved { opacity: .92; }
+.step .q { font-family: var(--font-display); font-size: 1.12rem; font-weight: 600; line-height: 1.35; }
+.step p { margin: 0; }
+.step ul, .step ol { margin: 0; padding-left: 1.2em; }
+.step-kind { display: flex; align-items: center; gap: 8px; }
+.step-kind .done-chip { font-size: .75rem; color: var(--good); font-weight: 700; }
+.code { background: var(--editor-bg); color: var(--editor-fg); border-radius: var(--radius); padding: 12px 14px; overflow-x: auto; font-family: var(--font-mono); font-size: .88rem; line-height: 1.6; margin: 0; white-space: pre; }
+.code .k { color: var(--hl-kw); } .code .s { color: var(--hl-str); } .code .c { color: var(--hl-com); font-style: italic; } .code .n { color: var(--hl-num); }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 10px 14px; display: grid; gap: 4px; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt.picked { border-color: var(--accent); background: var(--surface-2); }
+.opt.right { border-color: var(--good); background: var(--good-bg); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt:disabled { cursor: default; }
+.opt .why { font-size: .9rem; color: var(--ink); opacity: .85; }
+.opt pre { margin: 0; white-space: pre-wrap; font-size: .85rem; }
+.sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.sort-row:last-child { border-bottom: 0; }
+.sort-row .item { flex: 1 1 220px; min-width: 0; }
+.sort-row .item small { display: block; color: var(--muted); }
+.sort-row.right .item::before { content: "✓ "; color: var(--good); font-weight: 700; }
+.sort-row.wrong .item::before { content: "✗ "; color: var(--bad); font-weight: 700; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg button { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 99px; padding: 4px 12px; font-size: .85rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip { display: inline-block; border-radius: 99px; padding: 2px 10px; font-size: .8rem; font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); }
+.spot { background: var(--editor-bg); border-radius: var(--radius); padding: 8px 0; overflow-x: auto; }
+.spot button { display: flex; width: 100%; min-width: max-content; border: 0; background: transparent; color: var(--editor-fg); font-family: var(--font-mono); font-size: .88rem; text-align: left; padding: 2px 14px 2px 0; white-space: pre; line-height: 1.6; }
+.spot button .ln { width: 38px; flex: none; text-align: right; padding-right: 12px; color: var(--editor-muted); user-select: none; }
+.spot button:hover:not(:disabled) { background: rgba(255,255,255,.06); }
+.spot button.sel { background: rgba(240,183,58,.22); box-shadow: inset 3px 0 0 var(--accent); }
+.spot button.bad { background: rgba(242,128,108,.22); box-shadow: inset 3px 0 0 var(--bad); }
+.order-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.order-list li { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); }
+.order-list li .pos { font-family: var(--font-mono); color: var(--muted); width: 1.5em; flex: none; }
+.order-list li .txt { flex: 1; min-width: 0; }
+.order-list li.right { border-color: var(--good); }
+.order-list li .mv { display: flex; gap: 4px; flex: none; }
+.order-list li .mv button { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 6px; width: 32px; height: 30px; }
+.answer-input { width: 100%; font-family: var(--font-mono); font-size: .92rem; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); resize: vertical; }
+.write-input { width: 100%; font: inherit; padding: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); min-height: 140px; resize: vertical; line-height: 1.5; }
+.checklist { display: grid; gap: 6px; }
+.checklist label { display: flex; gap: 10px; align-items: flex-start; }
+.checklist input { margin-top: .3em; accent-color: var(--accent); }
+.model { border-left: 4px solid var(--good); background: var(--surface-2); padding: 10px 14px; border-radius: 0 8px 8px 0; display: grid; gap: 6px; }
+.model pre { margin: 0; white-space: pre-wrap; font-family: var(--font-mono); font-size: .86rem; }
+.explain { border-left: 4px solid var(--accent); background: var(--surface-2); padding: 10px 14px; border-radius: 0 8px 8px 0; display: grid; gap: 6px; }
+.lab textarea { display: block; width: 100%; min-height: 240px; resize: vertical; border: 0; outline: none; background: transparent; color: var(--editor-fg); padding: 14px 16px; font-size: .9rem; line-height: 1.6; tab-size: 4; caret-color: var(--accent); white-space: pre; overflow-x: auto; }
+.tests { display: grid; gap: 4px; font-size: .92rem; }
+.tests div { display: flex; gap: 8px; align-items: baseline; }
+.tests .pass::before { content: "✓"; color: var(--good); font-weight: 700; }
+.tests .fail::before { content: "✗"; color: var(--bad); font-weight: 700; }
+.tests small { color: var(--muted); font-family: var(--font-mono); font-size: .8rem; display: block; }
+.stdout { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-family: var(--font-mono); font-size: .82rem; white-space: pre-wrap; max-height: 180px; overflow: auto; margin: 0; }
+.step .body, .step .fb, .lab-out, .lab-sol, .compare { display: grid; gap: 10px; min-width: 0; }
+.step .fb:empty, .lab-out:empty, .lab-sol:empty, .compare:empty, .step .body:empty { display: none; }
+.step, .finale { scroll-margin-top: 90px; }
+.hint-line { color: var(--muted); font-size: .9rem; margin: 0; }
+.q ul, .q ol, .q p { font-family: var(--font-body); font-size: 1rem; font-weight: 400; margin-top: 8px; line-height: 1.55; }
+.q pre.code { font-weight: 400; margin-top: 10px; }
+.q code, .opt code { font-weight: 400; }
+details.reveal summary { cursor: pointer; font-weight: 700; color: var(--accent-ink); }
+details.reveal[open] summary { margin-bottom: 8px; }
+
 /* confetti */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
 .confetti i { position: absolute; width: 9px; height: 14px; border-radius: 2px; animation: fall 1.4s cubic-bezier(.2,.6,.4,1) forwards; }
@@ -239,6 +323,8 @@ td.num { text-align: right; font-family: var(--font-mono); font-size: .85rem; }
   .nav-toggle { display: inline-flex; }
   .xpbar { display: none; }
   .brand small { display: none; }
+  .tabs { order: 5; width: 100%; }
+  .tabs button { flex: 1; }
 }
 @media (max-width: 480px) {
   .rank span { display: none; }
@@ -271,6 +357,11 @@ td.num { text-align: right; font-family: var(--font-mono); font-size: .85rem; }
     <div class="brand">
       <div class="record" id="logo"></div>
       <div><h1>Ferry Street</h1></div>
+    </div>
+    <div class="tabs" role="tablist" id="tabs" aria-label="Courses">
+      <button type="button" role="tab" data-track="sql" aria-selected="true">SQL</button>
+      <button type="button" role="tab" data-track="oop" aria-selected="false">Objects</button>
+      <button type="button" role="tab" data-track="craft" aria-selected="false">Craft</button>
     </div>
     <div class="xp">
       <div class="rank"><b id="rank-name">Browser</b><span id="xp-text">0 XP</span></div>
@@ -830,6 +921,7 @@ let SQL = null;
 const sqlReady = (typeof initSqlJs === "function")
   ? initSqlJs().then(s => { SQL = s; })
   : Promise.reject(new Error("The SQL engine could not load. Check your connection and reload."));
+sqlReady.catch(() => {});   // reported to the viewer once the app opens
 
 function freshDb() { const db = new SQL.Database(); db.run(SEED); return db; }
 function lastResult(results) {
@@ -862,7 +954,8 @@ function compare(exp, got, ordered) {
 }
 
 /* ---- Rendering ---- */
-function renderTop() {
+function renderTop() { if (active === "sql") sqlRenderTop(); else stepRenderTop(active); }
+function sqlRenderTop() {
   const x = xp(); const { r, next } = rankFor(x);
   $("rank-name").textContent = r[1];
   $("xp-text").textContent = next ? `${x} XP · ${next[0] - x} to ${next[1]}` : `${x} XP · top rank`;
@@ -1075,11 +1168,11 @@ function run(les) {
 
 function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 
-function confetti() {
+function confetti(from) {
   if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const layer = document.createElement("div"); layer.className = "confetti";
   const colors = ["var(--accent)", "var(--good)", "var(--ink)", "var(--bad)"];
-  const btn = $("run").getBoundingClientRect();
+  const btn = (from || $("run")).getBoundingClientRect();
   for (let i = 0; i < 36; i++) {
     const p = document.createElement("i");
     p.style.left = (btn.left + btn.width / 2) + "px"; p.style.top = btn.top + "px";
@@ -1142,15 +1235,1856 @@ function bindLesson(les) {
   }
 }
 
+/* =====================================================================
+   Step-based courses: Objects and Craft
+   ===================================================================== */
+const py = String.raw;
+let active = "sql";
+try { const a = localStorage.getItem("ferry-street-active"); if (["sql", "oop", "craft"].includes(a)) active = a; } catch (e) {}
+
+const TKEY = "ferry-street-tracks-v1";
+const blankTrack = () => ({ current: null, reached: {}, xp: {}, drafts: {} });
+let tstate = { oop: blankTrack(), craft: blankTrack() };
+try {
+  const s = JSON.parse(localStorage.getItem(TKEY) || "null");
+  if (s) for (const k of ["oop", "craft"]) if (s[k]) tstate[k] = Object.assign(blankTrack(), s[k]);
+} catch (e) {}
+function tsave() { try { localStorage.setItem(TKEY, JSON.stringify(tstate)); } catch (e) {} }
+const attempts = {};   // wrong tries this session, for first-try XP
+
+const KIND = { read: "", mcq: "Choose", predict: "Predict the output", sort: "Sort it", spot: "Spot the problem", order: "Put in order", code: "Code lab", tests: "Test lab", write: "Your turn: write" };
+const FULL = { mcq: 4, predict: 4, sort: 4, spot: 4, order: 4, code: 8, tests: 8, write: 4 };
+const LESSON_BONUS = 5;
+const PRAISE = ["Nice.", "Correct.", "Spot on.", "That's it.", "Exactly right.", "Good call."];
+const reduced = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+function hl(code) {
+  const e = String(code).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return e.replace(/(#[^\n]*)|("""[\s\S]*?"""|f?"[^"\n]*"|f?'[^'\n]*')|\b(\d+(?:\.\d+)?)\b|\b(class|def|return|if|elif|else|for|in|while|import|from|as|try|except|finally|raise|with|None|True|False|and|or|not|is|pass|lambda|self|super|yield|assert|break|continue)\b/g,
+    (m, c, s, n, k) => c ? `<span class="c">${c}</span>` : s ? `<span class="s">${s}</span>` : n ? `<span class="n">${n}</span>` : `<span class="k">${k}</span>`);
+}
+const trimCode = s => String(s).replace(/^\n+|\s+$/g, "");
+const C = code => `<pre class="code">${hl(trimCode(code))}</pre>`;
+
+/* ---------- Objects course ---------- */
+const OOP = [
+ { sec: "Thinking in objects" },
+ { id: "o-why", title: "Why objects?",
+   intro: `I want the shop's software rewritten so it stops breaking. The old till code is a pile of dictionaries and loose functions. Let's see why that hurts before we fix it.`,
+   steps: [
+   { t: "read", html: `<p>Here's how the old till code handles an album:</p>` + C(py`
+album = {"title": "Snowline", "price": 16.0, "stock": 5}
+
+def sell(album, qty):
+    album["stock"] -= qty
+
+def discount(album, percent):
+    album["price"] = album["price"] * (1 - percent / 100)
+`) + `<p>It works. Then the shop grows, and two years later there are forty functions in twelve files, all reaching into the same dictionaries. Let's poke at it.</p>` },
+   { t: "mcq", q: `A new developer restocks with <code>album["stok"] = 4</code> (a typo). What happens?`, opts: [
+     [`Python raises a <code>KeyError</code>`, false, `Only <i>reading</i> a missing key raises KeyError. Assigning to one quietly creates it.`],
+     [`A new <code>"stok"</code> key is quietly added, and the real stock is unchanged`, true, `Right. No error and no warning. The bug shows up later, somewhere else, as wrong stock numbers.`],
+     [`The stock becomes 4`, false, `Python has no idea "stok" was meant to be "stock". To a dictionary they're unrelated keys.`]],
+     why: `Dictionaries accept any key, so nothing describes what an album <i>is</i>. A class fixes that by defining which attributes exist.` },
+   { t: "mcq", q: `Someone calls <code>sell(album, 10)</code> when only 5 are in stock. Where does this code stop stock going negative?`, opts: [
+     [`Inside <code>sell()</code>`, false, `Look again: sell() just subtracts. It never checks.`],
+     [`Nowhere. Every piece of code that changes stock would have to remember to check`, true, `Exactly. The rule "stock can't go below zero" has no home, so sooner or later it gets forgotten.`],
+     [`Python refuses negative numbers in a dictionary`, false, `Dictionaries hold whatever you put in them, including -5.`]] },
+   { t: "read", html: `<p><b>Object-oriented programming (OOP)</b> bundles data together with the behaviour allowed on it. A <b>class</b> describes a kind of thing. An <b>object</b> (also called an <b>instance</b>) is one actual thing made from it.</p>` + C(py`
+class Album:
+    def __init__(self, title, price, stock):
+        self.title = title
+        self.price = price
+        self.stock = stock
+
+    def sell(self, qty):
+        if qty > self.stock:
+            raise ValueError("not enough stock")
+        self.stock -= qty
+`) + `<p>Now the rule lives <i>inside</i> the album. Any code that sells goes through <code>sell()</code>, so it gets the check for free. The object is responsible for keeping itself valid.</p>
+<p>An object has <b>attributes</b> (its data, like <code>title</code>) and <b>methods</b> (its behaviour, like <code>sell()</code>). In this course you'll meet the four big ideas of OOP: <b>encapsulation</b>, <b>inheritance</b>, <b>polymorphism</b> and <b>abstraction</b>. You'll also learn when <i>not</i> to use classes at all.</p>` },
+   { t: "sort", q: `Which of these belong to an <code>Album</code> object?`, buckets: ["Attribute (data)", "Method (behaviour)", "Doesn't belong in Album"], items: [
+     ["<code>title</code>", 0, "Data each album holds."],
+     ["<code>sell(qty)</code>", 1, "Something an album does, changing its own stock."],
+     ["<code>price</code>", 0, "Data each album holds."],
+     ["<code>is_in_stock()</code>", 1, "A question the album answers about itself."],
+     ["<code>apply_discount(percent)</code>", 1, "Behaviour that changes the album's own price."],
+     ["A customer's email address", 2, "That's the customer's data. An album shouldn't know who buys it."],
+     ["<code>print_daily_sales_report()</code>", 2, "A report covers every sale in the shop. That's not one album's job."]],
+     why: `A good class holds its own data plus the behaviour that acts on that data, and nothing else. When unsure, ask: "is this about <i>one album</i>?"` }
+ ]},
+
+ { id: "o-class", title: "Classes and instances",
+   intro: `Right, let's make some albums. I keep hearing the word "self". What is it?`,
+   steps: [
+   { t: "read", html: `<p>A class is a blueprint. Calling it like a function builds a new object from that blueprint:</p>` + C(py`
+class Album:
+    def __init__(self, title, price):
+        self.title = title
+        self.price = price
+
+snowline = Album("Snowline", 16.0)
+ferry = Album("Midnight Ferry", 22.5)
+print(snowline.title)   # Snowline
+`) + `<p>When you call <code>Album("Snowline", 16.0)</code>, Python:</p><ol><li>creates a new, empty Album object</li><li>runs <code>__init__</code> with <code>self</code> set to that new object</li><li>hands the object back to you</li></ol><p><code>self.title = title</code> stores the value <i>on that particular object</i>. So <code>snowline</code> and <code>ferry</code> each carry their own title and price.</p>` },
+   { t: "predict", code: py`
+a = Album("Snowline", 16.0)
+b = Album("Snowline", 16.0)
+b.price = 12.0
+print(a.price)
+`, answer: "16.0", why: `<code>a</code> and <code>b</code> are separate objects that happen to hold the same data. Changing one doesn't touch the other.` },
+   { t: "mcq", q: `Same two albums. What does <code>print(a == b)</code> show?`, opts: [
+     ["True", false, `They look the same, but by default <code>==</code> on your own objects asks "is this the very same object?"`],
+     ["False", true, `Right. By default, two objects are only equal if they're the same object. A special method called <code>__eq__</code> changes that, and you'll meet it later.`],
+     ["An error", false, `Comparing objects is always allowed. It just might not mean what you expect.`]] },
+   { t: "predict", code: py`
+a = Album("Snowline", 16.0)
+c = a
+c.price = 9.99
+print(a.price)
+`, answer: "9.99", why: `<code>c = a</code> doesn't copy anything. It gives the same object a second name. This catches out experienced developers too: when two names point at one object, a change made through either name shows up in both.` },
+   { t: "spot", q: `This crashes with a <code>TypeError</code> as soon as an album is created. Click the line that's wrong.`, code: py`
+class Album:
+    def __init__(title, price):
+        self.title = title
+        self.price = price
+
+x = Album("Snowline", 16.0)
+`, bad: [1], why: `Every method's first parameter receives the object itself. Without <code>self</code> in the list, Python tries to pass three things (the new object, the title and the price) into two slots. It should be <code>def __init__(self, title, price):</code>.` },
+   { t: "mcq", q: `So what is <code>self</code>?`, opts: [
+     ["A keyword built into Python", false, `It's only a convention. You could call it <code>me</code> and it would work, but every Python developer expects <code>self</code>, so use it.`],
+     ["The object the method was called on", true, `Yes. <code>snowline.sell(2)</code> is really <code>Album.sell(snowline, 2)</code>: Python passes the object in as the first argument.`],
+     ["The class itself", false, `That's <code>cls</code>, used in class methods. <code>self</code> is one particular instance.`]] }
+ ]},
+
+ { id: "o-methods", title: "Methods: tell, don't ask",
+   intro: `The till, the website and the stock-take app all sell albums. Each does it slightly differently, and the stock numbers never agree.`,
+   steps: [
+   { t: "read", html: `<p>Methods are functions that live inside a class and work on <code>self</code>. They're how the outside world asks an object to do things.</p>` + C(py`
+class Album:
+    def __init__(self, title, price, stock=0):
+        self.title = title
+        self.price = price
+        self.stock = stock
+
+    def is_in_stock(self):
+        return self.stock > 0
+
+    def sell(self, qty):
+        if qty <= 0 or qty > self.stock:
+            raise ValueError(f"can't sell {qty} of {self.title}")
+        self.stock -= qty
+`) + `<p>A useful guideline is <b>tell, don't ask</b>. Instead of outside code <i>asking</i> an object for its data, deciding what to do, and changing it, <i>tell</i> the object what you want and let it apply its own rules.</p>` },
+   { t: "mcq", q: `Which version should the till, website and stock-take app use?`, opts: [
+     [`<pre>if album.stock >= qty:
+    album.stock -= qty
+else:
+    print("Not enough")</pre>`, false, `Every program has to copy this check. One day someone forgets it, or writes <code>&gt;</code> instead of <code>&gt;=</code>, and the numbers drift again.`],
+     [`<pre>album.sell(qty)</pre>`, true, `The rule lives in one place. Fix or change it once and every caller gets the new behaviour.`]],
+     why: `This is the payoff of methods: knowledge about albums lives in the Album class, not sprinkled across every program that touches albums.` },
+   { t: "code", q: `Build the <code>Album</code> class yourself. It needs:<ul><li><code>__init__(self, title, price, stock=0)</code>, storing all three</li><li><code>is_in_stock()</code>, returning <code>True</code> or <code>False</code></li><li><code>sell(qty)</code>, reducing stock. It raises <code>ValueError</code> if <code>qty</code> is 0 or less, or more than the stock. A failed sale must leave the stock unchanged.</li></ul>`,
+     starter: py`class Album:
+    def __init__(self, title, price, stock=0):
+        # store the three values on self
+        ...
+
+    def is_in_stock(self):
+        ...
+
+    def sell(self, qty):
+        ...
+`,
+     tests: [
+       ["Stores title, price and stock", py`a = Album("Snowline", 16.0, 5)
+assert (a.title, a.price, a.stock) == ("Snowline", 16.0, 5), f"got {(a.title, a.price, a.stock)}"`],
+       ["Stock defaults to 0", py`assert Album("X", 1.0).stock == 0`],
+       ["is_in_stock() is True when stock is above 0", py`assert Album("X", 1.0, 2).is_in_stock() is True`],
+       ["is_in_stock() is False at 0", py`assert Album("X", 1.0).is_in_stock() is False`],
+       ["sell(2) takes stock from 5 to 3", py`a = Album("X", 1.0, 5)
+a.sell(2)
+assert a.stock == 3, f"stock is {a.stock}"`],
+       ["Selling more than the stock raises ValueError and changes nothing", py`a = Album("X", 1.0, 1)
+with raises(ValueError):
+    a.sell(2)
+assert a.stock == 1, f"stock changed to {a.stock}"`],
+       ["Selling 0 or fewer raises ValueError", py`a = Album("X", 1.0, 3)
+with raises(ValueError):
+    a.sell(0)
+with raises(ValueError):
+    a.sell(-1)
+assert a.stock == 3`]],
+     solution: py`class Album:
+    def __init__(self, title, price, stock=0):
+        self.title = title
+        self.price = price
+        self.stock = stock
+
+    def is_in_stock(self):
+        return self.stock > 0
+
+    def sell(self, qty):
+        if qty <= 0 or qty > self.stock:
+            raise ValueError(f"can't sell {qty}")
+        self.stock -= qty
+`, why: `Notice the check happens <i>before</i> the change. Validate first, then act, so a failure never leaves the object half-updated.` },
+   { t: "predict", q: `Using that class:`, code: py`
+a = Album("Tidewater", 22.0, 1)
+try:
+    a.sell(3)
+except ValueError:
+    print("refused")
+print(a.stock, a.is_in_stock())
+`, answer: "refused\n1 True", why: `The sale is refused, so stock stays at 1 and the album is still in stock. The album only enforces its rule. The calling code decides what to do about the error, such as showing a message.` }
+ ]},
+
+ { sec: "The four big ideas" },
+ { id: "o-encap", title: "Encapsulation",
+   intro: `Someone "fixed" a price by typing <code>album.price = -16</code> straight into the console. We sold three albums and paid customers to take them.`,
+   steps: [
+   { t: "read", html: `<p><b>Encapsulation</b> means an object guards its own data. Outside code goes through methods, and the object's internals are its own business.</p>
+<p>Python has no <code>private</code> keyword. It relies on conventions:</p>
+<ul><li>A leading underscore, as in <code>self._price</code>, means "internal: don't touch this from outside". Nothing stops you, but everyone knows you shouldn't.</li>
+<li><code>@property</code> lets you keep the simple <code>album.price</code> syntax while running code behind the scenes, such as checks.</li></ul>` + C(py`
+class Album:
+    def __init__(self, title, price):
+        self.title = title
+        self.price = price          # this runs the setter below
+
+    @property
+    def price(self):                # reading album.price runs this
+        return self._price
+
+    @price.setter
+    def price(self, value):         # album.price = x runs this
+        if value < 0:
+            raise ValueError("price can't be negative")
+        self._price = value
+`) + `<p>Code outside still writes <code>album.price = 12</code>, but now the album gets a say.</p>` },
+   { t: "mcq", q: `With that class, what happens on <code>album.price = -16</code>?`, opts: [
+     ["The price becomes -16", false, `Assigning to <code>price</code> now runs the setter method, and the setter refuses.`],
+     ["<code>ValueError: price can't be negative</code>", true, `Right. The property turned a plain assignment into a checked operation.`],
+     ["It quietly stores -16 in <code>_price</code>", false, `The setter raises the error before it reaches <code>self._price = value</code>.`]] },
+   { t: "spot", q: `This code uses a <code>Basket</code> class and the <code>Album</code> above. Click every line that breaks encapsulation.`, code: py`
+basket = Basket()
+basket.add(snowline, 2)
+basket._items.append((ferry, 1))
+total = basket.total()
+snowline._price = 0
+print(f"Total: {total}")
+`, bad: [2, 4], why: `Both lines reach into underscore attributes. Line 3 skips whatever checks <code>add()</code> does, such as stock or quantity limits. Line 5 skips the price setter's check entirely. And code like this can break whenever the class changes its internals, because those were never promised to stay the same.` },
+   { t: "code", q: `Write a <code>GiftCard</code> class:<ul><li><code>GiftCard(balance)</code> starts with that balance</li><li><code>card.balance</code> can be read but <b>not</b> set directly (a property with no setter)</li><li><code>spend(amount)</code> lowers the balance. It raises <code>ValueError</code> if the amount is 0 or less, or more than the balance.</li><li><code>top_up(amount)</code> raises the balance. It raises <code>ValueError</code> if the amount is 0 or less.</li></ul>`,
+     starter: py`class GiftCard:
+    def __init__(self, balance):
+        self._balance = balance
+
+    @property
+    def balance(self):
+        ...
+
+    def spend(self, amount):
+        ...
+
+    def top_up(self, amount):
+        ...
+`,
+     tests: [
+       ["Starts with the given balance", py`assert GiftCard(25).balance == 25`],
+       ["spend(10) leaves 15", py`c = GiftCard(25)
+c.spend(10)
+assert c.balance == 15, f"balance is {c.balance}"`],
+       ["Overspending raises ValueError and leaves the balance alone", py`c = GiftCard(10)
+with raises(ValueError):
+    c.spend(30)
+assert c.balance == 10`],
+       ["Spending 0 or a negative amount raises ValueError", py`c = GiftCard(10)
+with raises(ValueError):
+    c.spend(0)
+with raises(ValueError):
+    c.spend(-5)
+assert c.balance == 10, "a negative spend must not add money"`],
+       ["top_up(5) adds 5", py`c = GiftCard(10)
+c.top_up(5)
+assert c.balance == 15`],
+       ["top_up of 0 or less raises ValueError", py`c = GiftCard(10)
+with raises(ValueError):
+    c.top_up(-3)`],
+       ["card.balance = 100 is refused", py`c = GiftCard(10)
+with raises(AttributeError):
+    c.balance = 100
+assert c.balance == 10`]],
+     solution: py`class GiftCard:
+    def __init__(self, balance):
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+    def spend(self, amount):
+        if amount <= 0 or amount > self._balance:
+            raise ValueError("invalid amount")
+        self._balance -= amount
+
+    def top_up(self, amount):
+        if amount <= 0:
+            raise ValueError("invalid amount")
+        self._balance += amount
+`, why: `Did you catch the sneaky one? Without the <code>amount &lt;= 0</code> check, <code>spend(-50)</code> would <i>add</i> £50. Encapsulation only helps if the methods guard every way in.` },
+   { t: "mcq", q: `A teammate says: "Why bother? Make everything public and trust the team." Best reply?`, opts: [
+     ["Properties make Python run faster", false, `They're actually a tiny bit slower. Speed isn't the point.`],
+     ["Rules kept inside the class survive deadlines, new teammates, and AI-generated code that doesn't know the rules", true, `That's it. Trust isn't the issue. People forget, and newcomers (human or AI) don't know what they don't know. The class remembers for them.`],
+     ["Public attributes are a security hole that hackers exploit", false, `Encapsulation is about keeping data correct, not stopping attackers. Anyone running your code can read <code>_balance</code>.`]] }
+ ]},
+
+ { id: "o-classattr", title: "Shared vs per-object data",
+   intro: `Bug report from the website: "I added one album to my basket and it showed up in everyone's basket." Yikes.`,
+   steps: [
+   { t: "read", html: `<p>Attributes set on <code>self</code> inside methods belong to <b>one object</b>. Attributes written directly in the class body belong to the <b>class</b>, and every instance shares them.</p>` + C(py`
+class Album:
+    VAT_RATE = 0.2                   # class attribute: shared by all albums
+
+    def __init__(self, title, price):
+        self.title = title           # instance attributes: one set per album
+        self.price = price
+
+    def price_with_vat(self):
+        return self.price * (1 + self.VAT_RATE)
+`) + `<p>Class attributes are good for constants that are the same for every object. When Python looks up <code>self.VAT_RATE</code>, it checks the object first, then falls back to the class.</p>` },
+   { t: "predict", code: py`
+class Album:
+    shop = "Ferry Street"
+    def __init__(self, title):
+        self.title = title
+
+a = Album("Snowline")
+b = Album("Tidewater")
+Album.shop = "Ferry St Records"
+print(a.shop, b.shop)
+`, answer: "Ferry St Records Ferry St Records", why: `Neither album has its own <code>shop</code>, so both look it up on the class. Change it on the class and every album sees the change.` },
+   { t: "predict", q: `Now the website's basket:`, code: py`
+class Basket:
+    items = []
+
+    def add(self, album):
+        self.items.append(album)
+
+mine = Basket()
+yours = Basket()
+mine.add("Snowline")
+print(len(yours.items))
+`, answer: "1", why: `There's only one list, and it lives on the class. <code>self.items.append(...)</code> finds the class's list and changes it, so every basket sees every item. That's the exact bug from the report.` },
+   { t: "spot", q: `Click the line that causes the bug.`, code: py`
+class Basket:
+    items = []
+
+    def add(self, album):
+        self.items.append(album)
+`, bad: [1], why: `<code>items = []</code> in the class body runs once, when the class is defined. It creates one list, shared by every basket.` },
+   { t: "mcq", q: `What's the right fix?`, opts: [
+     ["Create the list in <code>__init__</code>: <code>self.items = []</code>", true, `Yes. <code>__init__</code> runs once per basket, so each basket gets its own fresh list.`],
+     ["Use a tuple instead of a list", false, `Tuples can't be appended to, so <code>add()</code> would break. And the sharing would still be there.`],
+     ["Call <code>Basket.items.clear()</code> after each checkout", false, `Two customers shopping at the same time would still share a basket. This hides the bug instead of fixing it.`]],
+     why: `Rule of thumb: never put a mutable value (a list, dict or set) in the class body unless you really want every instance to share it.` }
+ ]},
+
+ { id: "o-inherit", title: "Inheritance",
+   intro: `We sell more than albums now: gift cards and turntables too. They all have a name and a price, and each has its own extras.`,
+   steps: [
+   { t: "read", html: `<p><b>Inheritance</b> lets one class build on another. The child class gets everything the parent has, and can add to it or replace parts of it.</p>` + C(py`
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+    def label(self):
+        return f"{self.name} £{self.price:.2f}"
+
+class Album(Product):                       # an Album is a Product
+    def __init__(self, name, price, artist):
+        super().__init__(name, price)       # let Product set name and price
+        self.artist = artist                # then add the extra bit
+
+    def label(self):                        # override: replace Product's version
+        return f"{self.name} by {self.artist} £{self.price:.2f}"
+
+class Turntable(Product):
+    pass                                    # nothing extra: just a Product
+`) + `<ul><li><code>class Album(Product)</code> means Album inherits from Product.</li><li><code>super().__init__(...)</code> runs the parent's version, so you don't repeat its setup.</li><li>Defining a method with the same name <b>overrides</b> the parent's version.</li></ul><p>Inheritance models an <b>is-a</b> relationship: an album <i>is a</i> product.</p>` },
+   { t: "predict", code: py`
+t = Turntable("Deck One", 199)
+print(t.label())
+`, answer: "Deck One £199.00", why: `Turntable defines nothing of its own, so it uses Product's <code>__init__</code> and <code>label()</code>.` },
+   { t: "predict", code: py`
+a = Album("Snowline", 16, "Hollow Pines")
+t = Turntable("Deck One", 199)
+print(isinstance(a, Product), isinstance(t, Album))
+`, answer: "True False", why: `An Album is a Product, so the first is True. A Turntable is a Product but not an Album: inheritance only runs from parent to child.` },
+   { t: "mcq", q: `This crashes on the last line with <code>AttributeError: 'Album' object has no attribute 'name'</code>. Why?`, code: py`
+class Album(Product):
+    def __init__(self, name, price, artist):
+        self.artist = artist
+
+a = Album("Snowline", 16, "Hollow Pines")
+print(a.label())
+`, opts: [
+     ["Album's <code>__init__</code> replaces Product's and never calls <code>super().__init__()</code>, so name and price are never set", true, `Right. Overriding <code>__init__</code> replaces the parent's version completely. Python won't call the parent's for you.`],
+     ["<code>label()</code> isn't inherited because Album defines <code>__init__</code>", false, `label() is inherited fine. The problem is that the data it reads was never stored.`],
+     ["Album must define its own <code>label()</code>", false, `It doesn't have to. Product's label() would work if name and price existed.`]] },
+   { t: "sort", q: `Is-a (inheritance might fit) or has-a (one object holds another)?`, buckets: ["is-a", "has-a"], items: [
+     ["Album and Product", 0, "An album is a kind of product."],
+     ["Basket and Album", 1, "A basket holds albums. A basket is not a kind of album."],
+     ["GiftCard and Product", 0, "A gift card is a kind of product."],
+     ["Customer and Address", 1, "A customer has an address."],
+     ["Shop and Customer", 1, "A shop has many customers."],
+     ["VinylAlbum and Album", 0, "A vinyl album is a kind of album."]],
+     why: `Mixing these up is one of the most common design mistakes. If "A is a B" sounds wrong out loud, inheritance is wrong too, and has-a is the right model.` }
+ ]},
+
+ { id: "o-poly", title: "Polymorphism",
+   intro: `The receipt printer needs a label for everything in the basket: albums, gift cards, turntables, and whatever we sell next year.`,
+   steps: [
+   { t: "read", html: `<p><b>Polymorphism</b> means "many shapes": the same method call does the right thing for each kind of object.</p>` + C(py`
+class GiftCard(Product):
+    def label(self):
+        return f"Gift card £{self.price:.0f}"
+
+basket = [Album("Snowline", 16, "Hollow Pines"),
+          GiftCard("Card", 25),
+          Turntable("Deck One", 199)]
+
+for item in basket:
+    print(item.label())     # each object uses its own label()
+`) + `<p>The loop doesn't know or care what each item is. It calls <code>label()</code>, and each object answers in its own way.</p>` },
+   { t: "predict", q: `What does that loop print? (Three lines.)`, code: py`
+for item in basket:
+    print(item.label())
+`, answer: "Snowline by Hollow Pines £16.00\nGift card £25\nDeck One £199.00", why: `Album uses its own override, GiftCard uses its own, and Turntable falls back to Product's. One call, three behaviours.` },
+   { t: "mcq", q: `Here's the old receipt code. The shop is about to start selling posters. What's the biggest problem?`, code: py`
+def label(item):
+    if item["kind"] == "album":
+        return f"{item['name']} by {item['artist']}"
+    elif item["kind"] == "gift":
+        return f"Gift card £{item['price']}"
+    elif item["kind"] == "turntable":
+        return f"{item['name']} £{item['price']}"
+`, opts: [
+     ["Every new product type means editing this function, and every other function written the same way", true, `Yes. There's usually a family of these (label(), shipping_cost(), tax()), and each one has to be found and updated. With polymorphism, you add one Poster class and the existing code just works.`],
+     ["if/elif chains are slow", false, `Not noticeably. The cost is maintenance, not speed.`],
+     ["Functions like this can't be tested", false, `They can. This one is testable, just fragile to extend.`]] },
+   { t: "predict", q: `Python goes further. This is called <b>duck typing</b>: "if it walks like a duck and quacks like a duck…". What prints?`, code: py`
+class Poster:                       # not a Product at all
+    def __init__(self, title):
+        self.title = title
+
+    def label(self):
+        return f"Poster: {self.title}"
+
+for item in [GiftCard("Card", 10), Poster("Neon Harbour tour")]:
+    print(item.label())
+`, answer: "Gift card £10\nPoster: Neon Harbour tour", why: `Poster doesn't inherit from anything, but it has a <code>label()</code> method, and that's all the loop needs. In Python, what an object can <i>do</i> matters more than which class it comes from.` }
+ ]},
+
+ { id: "o-compose", title: "Composition over inheritance",
+   intro: `New ideas keep coming: signed albums, discounted albums, pre-orders, and signed discounted pre-orders. My nephew started making a class for each one.`,
+   steps: [
+   { t: "mcq", q: `Albums can be signed, discounted or pre-order, in any mix. Which design copes best?`, opts: [
+     ["A subclass for every combination: <code>SignedAlbum</code>, <code>DiscountedAlbum</code>, <code>SignedDiscountedAlbum</code>…", false, `Three features already means 8 classes, and a fourth means 16. This is the classic "class explosion" from overusing inheritance.`],
+     ["One Album that <i>has</i> separate pieces (a pricing rule, a list of extras), passed in when it's created", true, `Yes. Each feature is its own small object, and you combine them freely. A new feature means one new class, not double the classes.`],
+     ["One Album class with a True/False flag for every feature, and if-statements everywhere", false, `Fine for two flags. With ten, every method becomes a maze of ifs, and the class ends up doing everything (a "god class").`]] },
+   { t: "read", html: `<p><b>Composition</b> means building an object out of other objects it <i>has</i>, instead of inheriting from them. Here the basket <i>has</i> a pricing rule, and you can swap the rule without touching Basket:</p>` + C(py`
+class NoDiscount:
+    def apply(self, amount):
+        return amount
+
+class PercentOff:
+    def __init__(self, percent):
+        self.percent = percent
+
+    def apply(self, amount):
+        return amount * (1 - self.percent / 100)
+
+class Basket:
+    def __init__(self, pricing):
+        self.items = []
+        self.pricing = pricing          # has-a pricing rule
+
+    def add(self, product, qty=1):
+        self.items.append((product, qty))
+
+    def total(self):
+        subtotal = sum(p.price * q for p, q in self.items)
+        return self.pricing.apply(subtotal)
+
+sale = Basket(PercentOff(10))
+normal = Basket(NoDiscount())
+`) + `<p>This uses polymorphism too: Basket only needs <i>something with an</i> <code>apply()</code> <i>method</i>. Swappable behaviour objects like this are a well-known design pattern called <b>Strategy</b>.</p><p>Inheritance glues classes together tightly: change the parent and every child feels it. Composition keeps the pieces loose and replaceable. Hence the common advice: "favour composition over inheritance".</p>` },
+   { t: "code", q: `Add a new pricing rule and a new basket method:<ul><li><code>FixedOff(amount)</code> takes a fixed amount off the total, but never goes below 0.</li><li>Add <code>item_count()</code> to Basket, returning the total quantity of items (two of one album plus one of another makes 3).</li></ul>`,
+     starter: py`class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+class NoDiscount:
+    def apply(self, amount):
+        return amount
+
+class PercentOff:
+    def __init__(self, percent):
+        self.percent = percent
+
+    def apply(self, amount):
+        return amount * (1 - self.percent / 100)
+
+class FixedOff:
+    ...
+
+class Basket:
+    def __init__(self, pricing):
+        self.items = []
+        self.pricing = pricing
+
+    def add(self, product, qty=1):
+        self.items.append((product, qty))
+
+    def total(self):
+        subtotal = sum(p.price * q for p, q in self.items)
+        return self.pricing.apply(subtotal)
+
+    def item_count(self):
+        ...
+`,
+     tests: [
+       ["FixedOff(5) takes £5 off £32", py`b = Basket(FixedOff(5))
+b.add(Product("Snowline", 16), 2)
+assert b.total() == 27, f"total is {b.total()}"`],
+       ["FixedOff never goes below 0", py`b = Basket(FixedOff(50))
+b.add(Product("Static Shock", 13.5))
+assert b.total() == 0, f"total is {b.total()}"`],
+       ["The other rules still work", py`b = Basket(PercentOff(10))
+b.add(Product("Tidewater", 20))
+assert abs(b.total() - 18) < 1e-9`],
+       ["item_count() adds up quantities", py`b = Basket(NoDiscount())
+b.add(Product("A", 1), 2)
+b.add(Product("B", 1))
+assert b.item_count() == 3, f"got {b.item_count()}"`],
+       ["item_count() is 0 for an empty basket", py`assert Basket(NoDiscount()).item_count() == 0`]],
+     solution: py`# Product, NoDiscount and PercentOff stay as they were.
+
+class FixedOff:
+    def __init__(self, amount):
+        self.amount = amount
+
+    def apply(self, amount):
+        return max(0, amount - self.amount)
+
+class Basket:
+    def __init__(self, pricing):
+        self.items = []
+        self.pricing = pricing
+
+    def add(self, product, qty=1):
+        self.items.append((product, qty))
+
+    def total(self):
+        subtotal = sum(p.price * q for p, q in self.items)
+        return self.pricing.apply(subtotal)
+
+    def item_count(self):
+        return sum(q for _, q in self.items)
+`, why: `You added a whole new kind of discount without changing how Basket works out totals. Code that's open to extension but closed to modification is the "O" in the SOLID principles, which you'll meet in the Craft course.` },
+   { t: "mcq", q: `So when <i>is</i> inheritance the right call?`, opts: [
+     ["When the child truly is a kind of the parent, and can be used anywhere the parent is expected", true, `Yes. If code written for Product works unchanged when handed an Album, inheritance fits. This rule has a name, the Liskov substitution principle: the "L" in SOLID.`],
+     ["Whenever two classes share some code", false, `Shared code is a weak reason. A helper function or a composed object can share code without tying the classes together.`],
+     ["Never: always use composition", false, `Too strong. Shallow, honest is-a hierarchies (Product → Album) are perfectly good design.`]] }
+ ]},
+
+ { sec: "Pythonic objects" },
+ { id: "o-dunder", title: "Special methods and dataclasses",
+   intro: `When I print an album while debugging, I get <code>&lt;Album object at 0x7f3a…&gt;</code>. Useless. Can it say something helpful?`,
+   steps: [
+   { t: "read", html: `<p>Methods with double underscores, like <code>__init__</code>, are called <b>special methods</b> ("dunder" methods). You rarely call them yourself. Python calls them when you use built-in syntax:</p>
+<ul><li><code>print(x)</code> or <code>repr(x)</code> → <code>__repr__</code> / <code>__str__</code></li><li><code>a == b</code> → <code>__eq__</code></li><li><code>len(x)</code> → <code>__len__</code></li><li><code>item in x</code> → <code>__contains__</code></li><li><code>a &lt; b</code> → <code>__lt__</code> (which makes <code>sorted()</code> work)</li></ul>` + C(py`
+class Album:
+    def __init__(self, title, price):
+        self.title = title
+        self.price = price
+
+    def __repr__(self):
+        return f"Album({self.title!r}, {self.price})"
+
+    def __eq__(self, other):
+        return isinstance(other, Album) and (self.title, self.price) == (other.title, other.price)
+
+print(Album("Snowline", 16.0))     # Album('Snowline', 16.0)
+`) + `<p>Writing these by hand gets repetitive, so Python offers <code>@dataclass</code>. It writes <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code> for you from a list of fields.</p>` },
+   { t: "predict", code: py`
+from dataclasses import dataclass
+
+@dataclass
+class Track:
+    title: str
+    seconds: int
+
+a = Track("Snowline", 241)
+b = Track("Snowline", 241)
+print(a == b)
+print(a)
+`, answer: "True\nTrack(title='Snowline', seconds=241)", why: `The dataclass generated an <code>__eq__</code> that compares fields (so True, unlike plain objects) and a readable <code>__repr__</code>.` },
+   { t: "code", q: `Write a <code>Playlist</code> for the listening station, using the <code>Track</code> dataclass:<ul><li><code>Playlist(name)</code> starts empty</li><li><code>add(track)</code> adds a track</li><li><code>len(playlist)</code> gives the number of tracks</li><li><code>track in playlist</code> works</li><li><code>total_seconds()</code> adds up the lengths</li><li><code>repr(playlist)</code> looks like <code>Playlist('Rainy day', 3 tracks)</code></li></ul>`,
+     starter: py`from dataclasses import dataclass
+
+@dataclass
+class Track:
+    title: str
+    seconds: int
+
+class Playlist:
+    def __init__(self, name):
+        self.name = name
+        self.tracks = []
+
+    def add(self, track):
+        ...
+
+    def total_seconds(self):
+        ...
+
+    # add __len__, __contains__ and __repr__ here
+`,
+     tests: [
+       ["len() counts tracks", py`p = Playlist("Rainy day")
+p.add(Track("Snowline", 241))
+p.add(Track("Woodsmoke", 198))
+assert len(p) == 2, f"len is {len(p)}"`],
+       ["An empty playlist has len 0", py`assert len(Playlist("x")) == 0`],
+       ["'in' finds a track", py`p = Playlist("x")
+p.add(Track("Snowline", 241))
+assert Track("Snowline", 241) in p
+assert Track("Tidewater", 200) not in p`],
+       ["total_seconds() adds up lengths", py`p = Playlist("x")
+p.add(Track("A", 100))
+p.add(Track("B", 41))
+assert p.total_seconds() == 141, f"got {p.total_seconds()}"`],
+       ["repr shows the name and count", py`p = Playlist("Rainy day")
+for s in (1, 2, 3):
+    p.add(Track(str(s), s))
+assert repr(p) == "Playlist('Rainy day', 3 tracks)", f"got {repr(p)}"`]],
+     solution: py`from dataclasses import dataclass
+
+@dataclass
+class Track:
+    title: str
+    seconds: int
+
+class Playlist:
+    def __init__(self, name):
+        self.name = name
+        self.tracks = []
+
+    def add(self, track):
+        self.tracks.append(track)
+
+    def total_seconds(self):
+        return sum(t.seconds for t in self.tracks)
+
+    def __len__(self):
+        return len(self.tracks)
+
+    def __contains__(self, track):
+        return track in self.tracks
+
+    def __repr__(self):
+        return f"Playlist({self.name!r}, {len(self)} tracks)"
+`, why: `Your Playlist now behaves like a built-in collection. <code>track in self.tracks</code> works because Track's generated <code>__eq__</code> compares fields. Without the dataclass, only the exact same Track object would be found.` },
+   { t: "mcq", q: `When is <code>@dataclass</code> a good fit?`, opts: [
+     ["For objects that are mostly data: a handful of fields and little behaviour", true, `Yes: tracks, addresses, order lines, settings. You get a clean class with almost no code.`],
+     ["For every class, always", false, `Classes built around behaviour and rules (like GiftCard and its checks) often want a hand-written <code>__init__</code> and properties. Dataclasses shine for plain data.`],
+     ["Only when performance matters", false, `Dataclasses are about less code and fewer mistakes, not speed.`]] }
+ ]},
+
+ { id: "o-abstract", title: "Abstraction and interfaces",
+   intro: `We take cash, cards and gift cards, and soon phone payments. The till code is a mess of ifs, one for each.`,
+   steps: [
+   { t: "read", html: `<p><b>Abstraction</b> means showing <i>what</i> something does and hiding <i>how</i> it does it. The till shouldn't care how a payment works, only that it can say "charge £20".</p>
+<p>An <b>abstract base class</b> (ABC) writes that promise down. It lists methods every subclass must provide, and can't be used directly itself:</p>` + C(py`
+from abc import ABC, abstractmethod
+
+class PaymentMethod(ABC):
+    @abstractmethod
+    def charge(self, amount):
+        """Take up to amount. Return how much is still owed."""
+
+class Cash(PaymentMethod):
+    def charge(self, amount):
+        print(f"Took £{amount:.2f} in cash")
+        return 0
+
+def checkout(total, method):
+    owed = method.charge(total)     # works for any PaymentMethod
+    return owed
+`) + `<p>The till depends on the <i>idea</i> of a payment method, not on any particular one. That's the "D" in SOLID (dependency inversion): depend on abstractions, not concrete details. Python also has <code>typing.Protocol</code>, which describes the same kind of interface for duck typing, without inheritance.</p>` },
+   { t: "mcq", q: `What does <code>PaymentMethod()</code> do?`, opts: [
+     ["Creates a payment method that does nothing", false, `Abstract classes refuse to be created at all.`],
+     ["Raises <code>TypeError</code>: can't instantiate abstract class", true, `Right. It's a promise, not a thing you can use.`],
+     ["Creates it, but calling <code>charge()</code> fails", false, `Python checks earlier than that: as soon as you try to create the object.`]] },
+   { t: "mcq", q: `A teammate writes <code>class Card(PaymentMethod): pass</code> and forgets <code>charge()</code>. When do they find out?`, opts: [
+     ["As soon as they try <code>Card()</code>: TypeError", true, `Yes, and that's the value of an ABC. The mistake shows up straight away, not halfway through a customer's checkout.`],
+     ["Only when a customer pays by card", false, `That's what would happen with plain duck typing and no ABC. The ABC catches it earlier.`],
+     ["Never: it inherits an empty charge()", false, `Abstract methods don't count as implemented. Every concrete subclass must write its own.`]] },
+   { t: "code", q: `Implement a gift card payment and a split-payment checkout:<ul><li><code>GiftCardPayment(balance)</code> has a <code>balance</code> attribute. Its <code>charge(amount)</code> takes as much as it can from the balance and returns what's still owed.</li><li><code>pay(total, methods)</code> tries each method in order, passing on whatever is still owed, and returns the final amount owed (0 if fully paid). It stops as soon as nothing is owed.</li></ul>`,
+     starter: py`from abc import ABC, abstractmethod
+
+class PaymentMethod(ABC):
+    @abstractmethod
+    def charge(self, amount):
+        """Take up to amount. Return how much is still owed."""
+
+class GiftCardPayment(PaymentMethod):
+    def __init__(self, balance):
+        self.balance = balance
+
+    def charge(self, amount):
+        ...
+
+def pay(total, methods):
+    ...
+`,
+     tests: [
+       ["£10 card on a £25 bill: owes 15, card empty", py`g = GiftCardPayment(10)
+assert g.charge(25) == 15
+assert g.balance == 0, f"balance is {g.balance}"`],
+       ["£10 card on a £4 bill: owes 0, £6 left", py`g = GiftCardPayment(10)
+assert g.charge(4) == 0
+assert g.balance == 6`],
+       ["It's a real PaymentMethod", py`assert isinstance(GiftCardPayment(1), PaymentMethod)`],
+       ["pay() splits a bill across two cards", py`a, b = GiftCardPayment(10), GiftCardPayment(5)
+assert pay(30, [a, b]) == 15
+assert (a.balance, b.balance) == (0, 0)`],
+       ["pay() stops once the bill is paid", py`a, b = GiftCardPayment(50), GiftCardPayment(5)
+assert pay(20, [a, b]) == 0
+assert b.balance == 5, "the second card shouldn't be charged"`],
+       ["pay() works with any PaymentMethod (polymorphism)", py`class Cash(PaymentMethod):
+    def charge(self, amount):
+        return 0
+assert pay(42, [GiftCardPayment(2), Cash()]) == 0`]],
+     solution: py`from abc import ABC, abstractmethod
+
+class PaymentMethod(ABC):
+    @abstractmethod
+    def charge(self, amount):
+        """Take up to amount. Return how much is still owed."""
+
+class GiftCardPayment(PaymentMethod):
+    def __init__(self, balance):
+        self.balance = balance
+
+    def charge(self, amount):
+        taken = min(self.balance, amount)
+        self.balance -= taken
+        return amount - taken
+
+def pay(total, methods):
+    owed = total
+    for method in methods:
+        if owed <= 0:
+            break
+        owed = method.charge(owed)
+    return owed
+`, why: `<code>pay()</code> never mentions gift cards or cash. Phone payments next year? Write one new PaymentMethod subclass, and <code>pay()</code> doesn't change.` }
+ ]},
+
+ { id: "o-when", title: "When not to use classes",
+   intro: `My nephew read about OOP over the weekend. Now everything is a class, including one for adding VAT. Is that… good?`,
+   steps: [
+   { t: "read", html: `<p>OOP is a tool, not a goal. Python happily mixes styles, and plenty of good Python code has few classes. Warning signs you're overdoing it:</p>
+<ul><li>A class with only <code>__init__</code> and one other method: that's a function wearing a costume.</li>
+<li>Names like <code>Manager</code>, <code>Helper</code>, <code>Util</code> or <code>Processor</code> that don't describe a real thing.</li>
+<li>Getters and setters for every attribute, a habit carried over from Java. In Python, use plain attributes and add a <code>@property</code> later if you need one.</li>
+<li>Deep inheritance trees built "in case" they're needed.</li></ul>
+<p>Use a class when you have <b>state plus rules</b> that belong together, or many similar things that need to behave alike. Use a function for a calculation or transformation. Use a dataclass for a plain bundle of data.</p>` },
+   { t: "sort", q: `Class or plain function?`, buckets: ["Make it a class", "A function is fine"], items: [
+     ["Convert pounds to pence", 1, "Input in, output out, no state."],
+     ["A basket that tracks items and applies discounts", 0, "State (the items) plus rules that act on it."],
+     ["Format a date for receipts", 1, "A pure transformation."],
+     ["A connection to the card machine that must be opened, reused, then closed", 0, "It has a lifecycle and state to manage."],
+     ["Add up a list of prices", 1, "That's just <code>sum()</code>."],
+     ["A loyalty card that earns and spends points", 0, "A balance plus rules about changing it: a classic object."]] },
+   { t: "mcq", q: `How would you simplify this?`, code: py`
+class PriceFormatterManager:
+    def __init__(self):
+        pass
+
+    def format_price(self, amount):
+        return f"£{amount:.2f}"
+
+formatter = PriceFormatterManager()
+print(formatter.format_price(16))
+`, opts: [
+     [`Replace the whole class with <code>def format_price(amount): return f"£{amount:.2f}"</code>`, true, `Yes. No state and one behaviour: it's a function. Less code, nothing to set up, easier to test.`],
+     ["Make <code>format_price</code> a <code>@staticmethod</code>", false, `Slightly better, but it keeps a class that holds nothing and means nothing.`],
+     ["Add an abstract base class so other formatters can be plugged in later", false, `That's adding complexity for a need that doesn't exist yet. (See YAGNI in the Craft course.)`]] },
+   { t: "mcq", q: `An AI assistant suggests a <code>PriceCalculatorFactory</code> and an <code>AbstractPricingStrategy</code> for a script that adds VAT to one CSV file, once. What do you do?`, opts: [
+     ["Accept it: AI-generated structure is usually best practice", false, `Assistants learned from a lot of enterprise code, and they often over-structure. You're the one who has to read and maintain the result.`],
+     ["Ask for (or write) the simplest version that works, and add structure when a real second case appears", true, `Yes. Judging how much design a problem needs is a skill AI doesn't replace. Simple code is cheaper to read, review and change.`],
+     ["Rewrite it in a functional language", false, `Switching languages doesn't fix the actual problem, which is too much machinery for a tiny job.`]] }
+ ]},
+
+ { sec: "Final round" },
+ { id: "o-boss", title: "Boss level: the loyalty scheme", boss: true,
+   intro: `Here's my plan, written on the back of a receipt: <i>"Customers get a loyalty card. 1 point per £1 spent. Gold members (more than 500 points earned all time) get double points. Swap 100 points for £5 off. Staff can see each card's points history."</i> Can you design it and build it?`,
+   steps: [
+   { t: "read", html: `<p>A classic way to start an object design is to read the requirements and look at the words. <b>Nouns</b> often become classes or attributes. <b>Verbs</b> often become methods. And some words are just context that never needs to be in the code.</p>` },
+   { t: "sort", q: `Sort the pieces of Dot's plan.`, buckets: ["Class", "Attribute", "Method", "Not needed in code"], items: [
+     ["Loyalty card", 0, "The central object, with state and rules."],
+     ["Customer", 0, "A thing in its own right. A customer <i>has</i> a loyalty card."],
+     ["Current points balance", 1, "Data the card holds."],
+     ["Earn points for a purchase", 2, "Behaviour that changes the card."],
+     ["Swap 100 points for £5 off", 2, "Behaviour with a rule attached (it needs at least 100 points)."],
+     ["Points history", 1, "A list of changes the card keeps."],
+     ["Total points ever earned", 1, "Needed to work out Gold status."],
+     ["The back of a receipt", 3, "That's just where Dot wrote it down."]] },
+   { t: "mcq", q: `How should the card know if it's Gold?`, opts: [
+     ["Store <code>self.is_gold = True</code> when they pass 500", false, `A stored flag can drift out of sync, for example when staff correct a balance, or a bug forgets to update it.`],
+     ["Work it out from total points earned each time it's asked, using a <code>@property</code>", true, `Yes. Derive values from the source of truth instead of storing copies. Then there's nothing to keep in sync.`],
+     ["Make a <code>GoldLoyaltyCard</code> subclass", false, `Status changes over time, but an object can't easily change its class. More on that next.`]] },
+   { t: "mcq", q: `So, inheritance for Gold or not?`, opts: [
+     ["Subclass: a Gold card is-a loyalty card", false, `It sounds like is-a, but a card <i>becomes</i> Gold partway through its life. You'd have to throw the object away and rebuild it as a different class, copying its history over.`],
+     ["No subclass: Gold is a state the card is in, so compute it (or hold a tier object, if tiers get complicated)", true, `Right. Inheritance is for what something permanently <i>is</i>. A state that changes is data, or a composed object.`]] },
+   { t: "code", q: `Build <code>LoyaltyCard</code>:<ul><li><code>card.points</code>: the current balance, read-only</li><li><code>card.lifetime</code>: total points ever earned</li><li><code>card.is_gold</code>: True when lifetime points are <b>more than</b> 500 (a property)</li><li><code>card.earn(amount_spent)</code>: 1 point per <b>whole</b> £1 (so £16.99 earns 16), doubled if the card is already Gold before this purchase. It returns the points added.</li><li><code>card.redeem()</code>: swaps 100 points for £5 off and returns <code>5</code>. It raises <code>ValueError</code> if there are fewer than 100 points.</li><li><code>card.history</code>: a list of tuples like <code>("earn", 16)</code> and <code>("redeem", -100)</code></li></ul>`,
+     starter: py`class LoyaltyCard:
+    def __init__(self):
+        ...
+
+    @property
+    def points(self):
+        ...
+
+    @property
+    def is_gold(self):
+        ...
+
+    def earn(self, amount_spent):
+        ...
+
+    def redeem(self):
+        ...
+`,
+     tests: [
+       ["A new card is empty", py`c = LoyaltyCard()
+got = (c.points, c.lifetime, c.is_gold, c.history)
+assert got == (0, 0, False, []), f"got {got}"`],
+       ["£16.99 earns 16 points", py`c = LoyaltyCard()
+assert c.earn(16.99) == 16
+assert c.points == 16`],
+       ["Redeeming with under 100 points raises ValueError", py`c = LoyaltyCard()
+c.earn(50)
+with raises(ValueError):
+    c.redeem()
+assert c.points == 50`],
+       ["Redeem takes 100 points and returns 5", py`c = LoyaltyCard()
+c.earn(16)
+c.earn(150)
+assert c.redeem() == 5
+assert c.points == 66 and c.lifetime == 166, f"points {c.points}, lifetime {c.lifetime}"`],
+       ["Exactly 500 lifetime points is not Gold", py`c = LoyaltyCard()
+c.earn(500)
+assert c.is_gold is False`],
+       ["Over 500 is Gold, and Gold earns double", py`c = LoyaltyCard()
+c.earn(500)
+c.earn(1)
+assert c.is_gold is True
+assert c.earn(10) == 20`],
+       ["Redeeming doesn't reduce lifetime points", py`c = LoyaltyCard()
+c.earn(501)
+c.redeem()
+assert c.is_gold and c.lifetime == 501`],
+       ["History records each change", py`c = LoyaltyCard()
+c.earn(120)
+c.redeem()
+assert c.history == [("earn", 120), ("redeem", -100)], f"got {c.history}"`],
+       ["points can't be set directly", py`c = LoyaltyCard()
+with raises(AttributeError):
+    c.points = 1000`]],
+     solution: py`class LoyaltyCard:
+    def __init__(self):
+        self._points = 0
+        self.lifetime = 0
+        self.history = []
+
+    @property
+    def points(self):
+        return self._points
+
+    @property
+    def is_gold(self):
+        return self.lifetime > 500
+
+    def earn(self, amount_spent):
+        added = int(amount_spent) * (2 if self.is_gold else 1)
+        self._points += added
+        self.lifetime += added
+        self.history.append(("earn", added))
+        return added
+
+    def redeem(self):
+        if self._points < 100:
+            raise ValueError("need at least 100 points")
+        self._points -= 100
+        self.history.append(("redeem", -100))
+        return 5
+`, why: `Look at what you used: encapsulation (read-only points), a derived property (is_gold), checking before changing (redeem), and a deliberate decision <i>not</i> to use inheritance.` },
+   { t: "write", q: `Dot isn't a programmer. In 3 to 5 plain sentences, explain why Gold isn't stored as a yes/no setting, and why points can't be edited directly.`, placeholder: "Dot, the reason Gold works the way it does is...",
+     model: `Gold isn't stored as a separate setting because it can always be worked out from the points a customer has earned in total. If we stored it separately, the two could disagree after a correction or a bug, and nobody would know which was right. Points only change through earning or redeeming, so every change follows the same rules and gets written into the history. That means staff can always see why a balance is what it is, and nobody can accidentally type in 10,000 points.`,
+     checklist: ["Explained that Gold is calculated from lifetime points", "Gave the risk of storing it twice (the two can disagree)", "Explained that points only change through earning or redeeming", "Mentioned the benefit to Dot or staff (the history explains every balance; no accidental edits)", "Used no jargon like \"property\", \"encapsulation\" or \"class\""] }
+ ]}
+];
+
+/* ---------- Craft course ---------- */
+const CRAFT = [
+ { sec: "Understanding code" },
+ { id: "c-read", title: "Read before you write",
+   intro: `Welcome to the team! First ticket: <i>"Order confirmation emails sometimes show the wrong total."</i> You've never seen this codebase. No pressure.`,
+   steps: [
+   { t: "read", html: `<p>Most working developers spend far more time <b>reading</b> code than writing it. As AI tools write more of the first drafts, that tips even further. The valuable skill is understanding code, judging it, and knowing what to change.</p><p>Before you touch an unfamiliar system, get a rough map: how it runs, where the relevant code lives, and why it's the way it is.</p>` },
+   { t: "order", q: `Put these first steps on the email bug in a sensible order.`, items: [
+     "Reproduce it: find an order where the email total was wrong and compare it with the database",
+     "Find where the email is built (search the code for the template, or for \"total\")",
+     "Trace where that total comes from, back to its source",
+     "Form a guess about the cause, and check it",
+     "Write a test that fails because of the bug",
+     "Fix it, and watch the test pass"],
+     why: `Reproduce first: you can't confirm a fix for a bug you can't see. And write the failing test <i>before</i> the fix. It proves you understand the cause, and it stops the bug quietly coming back later.` },
+   { t: "mcq", q: `A teammate says "just ask the AI". You paste the ticket into an assistant, and it suggests a change to a file you haven't opened. Best move?`, opts: [
+     ["Apply it. If the tests pass, ship it", false, `Passing tests only prove what the tests check, and this bug already got past them. You'd be shipping a change you can't explain.`],
+     ["Read that file and trace the code path yourself, then judge whether the change fixes the actual cause", true, `Yes. The suggestion is a useful lead, and it's saved you searching. But you're still responsible for understanding what you ship.`],
+     ["Ignore AI suggestions on principle", false, `That throws away a useful tool. Assistants are great at searching, explaining unfamiliar code and drafting. The mistake is skipping understanding, not using AI.`]] },
+   { t: "sort", q: `It's your first week. What deserves your attention early, and what can wait?`, buckets: ["Look at early", "Can wait"], items: [
+     ["The README and setup instructions", 0, "How to run the thing at all."],
+     ["Tests for the part of the code you're changing", 0, "They show how the code is meant to behave, and give you a safety net."],
+     ["<code>git log</code> and <code>git blame</code> for the file", 0, "The history explains <i>why</i> the code looks the way it does, which you can't get from the code alone."],
+     ["How the app is deployed", 0, "You need to know how your change reaches customers."],
+     ["Rewriting the build system you don't like", 1, "Week one is for learning why things are the way they are. Big rewrites come later, if ever, and with the team's agreement."],
+     ["Renaming variables across the codebase to your taste", 1, "Pure churn. It makes everyone else's work harder to review and merge."]] }
+ ]},
+
+ { id: "c-names", title: "Names and readability",
+   intro: `I asked for a review of some old code and got back: "I have no idea what <code>f(l, t)</code> does." Neither do I.`,
+   steps: [
+   { t: "read", html: `<p>Code is read far more often than it's written: by teammates, by future you, and now by AI tools that take their context from your code. Clear names are the cheapest documentation there is.</p><ul><li>Name things after what they <b>mean</b>, not their type: <code>overdue_orders</code>, not <code>list2</code>.</li><li>Functions should say what they do or return: <code>send_receipt()</code>, <code>is_gold()</code>.</li><li>Comments should explain <b>why</b>, not repeat <b>what</b>. If a comment just restates the code, a better name usually removes the need for it.</li></ul>` },
+   { t: "mcq", q: `Best name for a function that returns customers who haven't bought anything in a given number of months?`, opts: [
+     ["<code>get_data()</code>", false, `Every function gets data. This tells the reader nothing.`],
+     ["<code>process_customers()</code>", false, `"Process" hides what actually happens. Does it email them? Delete them?`],
+     ["<code>customers_inactive_for(months)</code>", true, `It reads like a sentence where it's used: <code>customers_inactive_for(12)</code>.`],
+     ["<code>cust_inact_12()</code>", false, `Cryptic abbreviations, and the 12 is baked in, so you'd need another function for 6 months.`]] },
+   { t: "spot", q: `Click the comments that add nothing (they just repeat the code).`, code: py`
+# add one to count
+count += 1
+# Supplier API returns pence, not pounds
+price = response["price"] / 100
+# loop over albums
+for album in albums:
+    # Skip pre-orders: they're charged on release day
+    if album.preorder:
+        continue
+`, bad: [0, 4], why: `Those two describe what anyone can see. The other two record facts the code can't express: why divide by 100, and why pre-orders are skipped. Those are the comments worth keeping.` },
+   { t: "write", q: `Rewrite this so it explains itself. Each item in <code>l</code> is a tuple <code>(title, artist, price, stock)</code>.<pre class="code">def f(l, t):
+    r = []
+    for x in l:
+        if x[2] > t and x[3] == 0:
+            r.append(x[0])
+    return r</pre>`, placeholder: "def ...", mono: true,
+     model: `def sold_out_titles_above(albums, min_price):
+    return [
+        title
+        for title, artist, price, stock in albums
+        if price > min_price and stock == 0
+    ]`,
+     checklist: ["The function name says what it returns", "The parameters have meaningful names", "Unpacked the tuple (or used an object) instead of x[2] and x[3]", "Someone new could understand it without a comment"] }
+ ]},
+
+ { sec: "Design principles" },
+ { id: "c-srp", title: "One job each",
+   intro: `The monthly report broke because someone changed the email server. Why would an email change break the maths?`,
+   steps: [
+   { t: "read", html: `<p>The <b>single responsibility principle</b> says a function, class or module should have one reason to change. When one piece of code does several jobs, changing any of them risks breaking the others, and you can't test one job without the rest.</p><p>It's the "S" in <b>SOLID</b>, a set of five design principles that come up in interviews. You met three in the Objects course: <b>O</b>pen/closed (add behaviour without editing existing code), <b>L</b>iskov substitution (a subclass should work wherever its parent does) and <b>D</b>ependency inversion (depend on abstractions). The fifth, <b>I</b>nterface segregation, means code shouldn't be forced to depend on methods it doesn't use.</p>` },
+   { t: "spot", q: `This function is meant to calculate the month's total. Click the lines doing a different job.`, code: py`
+def monthly_total(path):
+    rows = list(csv.DictReader(open(path)))
+    total = sum(float(r["price"]) * int(r["qty"]) for r in rows)
+    html = f"<h1>Total: £{total:.2f}</h1>"
+    send_email("dot@ferrystreet.example", html)
+    return total
+`, bad: [1, 3, 4], why: `Reading the file, building HTML and sending email are three more jobs, each with its own reason to change (file format, design, email provider). As it stands, testing the maths means having a real file and sending a real email.` },
+   { t: "mcq", q: `Which split is best?`, opts: [
+     ["<code>load_sales(path)</code>, <code>calculate_total(rows)</code>, <code>render_report(total)</code> and <code>send_report(html)</code>, called in turn by a short <code>run_monthly_report()</code>", true, `Each piece can be tested and changed on its own, and the top-level function reads like a summary of the process.`],
+     ["Four classes: <code>SalesLoaderManager</code>, <code>TotalCalculatorService</code>…", false, `Same split, much more ceremony. Plain functions are enough here.`],
+     ["Leave it: it's only 6 lines", false, `Short isn't the same as simple. The trouble is its parts can't be tested or changed separately.`]] },
+   { t: "read", html: `<p>Another famous principle is <b>DRY</b>: don't repeat yourself. It's good advice, but easy to overdo. Two pieces of code can <i>look</i> alike while existing for different reasons. Merge them, and when one needs to change, you end up adding flags and special cases.</p><p>A popular rule of thumb is to wait until you've written something three times before abstracting it. <b>Duplication is far cheaper than the wrong abstraction.</b></p>` },
+   { t: "mcq", q: `Receipts and invoices have five near-identical formatting lines. Legal says invoices need different rounding rules next quarter. What do you do?`, opts: [
+     ["Merge them into one <code>format_document(kind)</code>, with an if for the rounding", false, `You'd be welding together two things that are about to grow apart, and more ifs will follow.`],
+     ["Leave them separate for now: they look alike but change for different reasons", true, `Yes. DRY is about knowledge, not text that happens to look the same. These encode two different sets of rules.`],
+     ["Copy the lines into a third place for the new rules", false, `Now there are three copies, and the problem is worse.`]] }
+ ]},
+
+ { id: "c-yagni", title: "Keep it simple",
+   intro: `A contractor quoted three weeks for a "flexible reporting platform". Dot asked for one list of this week's sales.`,
+   steps: [
+   { t: "read", html: `<p><b>KISS</b> (keep it simple) and <b>YAGNI</b> (you aren't gonna need it) push back against building for imagined futures. Code written "just in case" costs time now, has to be read and maintained forever, and the guess about the future is usually wrong.</p><p>This matters more now that AI makes code cheap to <i>produce</i>. The real cost of code is reading, reviewing and maintaining it, and an assistant can generate a lot of it very quickly.</p><p>Simple isn't careless, though. Handling cases that really happen today isn't YAGNI.</p>` },
+   { t: "sort", q: `Build it now, or wait until it's actually needed?`, buckets: ["Build it now", "Wait until needed"], items: [
+     ["Handle orders with zero items (it already happens)", 0, "A real case today."],
+     ["Support 12 currencies (the shop is UK-only, with no plans to change)", 1, "Pure speculation."],
+     ["A plugin system for payment providers (we use one)", 1, "When a second provider actually arrives, you'll know what the plugin needs to look like."],
+     ["Check email addresses are valid on signup", 0, "Bad input happens on day one."],
+     ["Make the database swappable in case we leave SQLite someday", 1, "A clean, simple design is already easy to change. Extra layers cost you now, and the guess is usually wrong."],
+     ["Back up the database every night", 0, "Not speculative: losing data is a matter of when, not if."]] },
+   { t: "mcq", q: `Which decisions deserve the most careful thought up front?`, opts: [
+     ["Every decision equally", false, `That's how three-week reporting platforms happen. Spend thinking time where it pays off.`],
+     ["Ones that are hard to reverse: table design for live data, the shape of a public API, signing a hosting contract", true, `Yes. Decisions that are cheap to change can be made quickly and fixed later. Expensive-to-change ones deserve care. Amazon calls these "one-way" and "two-way" doors.`],
+     ["Variable names", false, `Worth getting right, but renaming is cheap. That's a two-way door.`]] },
+   { t: "mcq", q: `Dot needs this week's sales on a page. Which do you build?`, opts: [
+     ["One query and a simple page: about half a day", true, `Ship it, learn what Dot actually uses, and grow it from there.`],
+     ["A configurable reporting engine for any future report: about two weeks", false, `You'd be guessing at needs nobody has stated. Build the second report when someone asks for it, then see what the two have in common.`]] }
+ ]},
+
+ { id: "c-tests", title: "Tests that pay off",
+   intro: `Every time we change checkout, something else breaks. Can we stop doing that?`,
+   steps: [
+   { t: "read", html: `<p>Tests let you change code without fear. They're also becoming the main way to <b>check AI-written code</b>: if you can describe the behaviour you want as tests, you can verify any implementation, whoever or whatever wrote it.</p><p>The <b>test pyramid</b>:</p><ul><li><b>Unit tests</b> (lots): one function or class on its own. Fast and precise.</li><li><b>Integration tests</b> (some): several parts together, such as your code plus a real database.</li><li><b>End-to-end tests</b> (a few): the whole system, used the way a customer would. Slow and brittle, but they catch what the others miss.</li></ul><p>Good tests check <b>behaviour</b> (what the code promises), not implementation details (how it happens to work today).</p>` },
+   { t: "sort", q: `What kind of test is each of these?`, buckets: ["Unit", "Integration", "End-to-end"], items: [
+     ["<code>calculate_total()</code> returns 32.00 for two £16 albums", 0, "One function, no outside systems."],
+     ["Saving an order writes the right rows to a real test database", 1, "Your code and the database, together."],
+     ["A browser script buys an album on the test site and checks the email arrives", 2, "The whole system, used as a customer would."],
+     ["<code>LoyaltyCard.redeem()</code> raises an error with under 100 points", 0, "One class's behaviour."],
+     ["The <code>/orders/999</code> page returns \"not found\", with the real database behind it", 1, "The web layer plus the database."]] },
+   { t: "spot", q: `This test will break the next time someone tidies up Basket's internals, even if Basket still works. Which line is the problem?`, code: py`
+def test_total():
+    basket = Basket(NoDiscount())
+    basket.add(Album("Snowline", 16.0), 2)
+    assert basket._items[0][1] == 2
+    assert basket.total() == 32.0
+`, bad: [3], why: `It checks a private detail (how items are stored), not behaviour. If Basket switches to a dictionary, this fails while the shop works fine. Tests that fail for no real reason teach people to ignore failing tests.` },
+   { t: "mcq", q: `A test fails about 1 run in 20 on the build server. Everyone just presses re-run. What should happen?`, opts: [
+     ["Keep re-running: it's only one test", false, `Soon there are five flaky tests, nobody trusts a failing build, and a real failure gets re-run away.`],
+     ["Treat it as a bug: find the cause (timing, test order, shared state, the real clock or network) and fix it, or quarantine it with a ticket", true, `Yes. A flaky test is either a bug in the test, or a real intermittent bug in the code, and those are the worst kind to meet in production.`],
+     ["Delete it", false, `You'd lose whatever it was protecting, and maybe hide a real timing bug.`]] },
+   { t: "tests", q: `Now write some tests yourself. Here's the function to test:<pre class="code">points_for(amount, is_gold)</pre><ul><li>1 point per whole £1 spent (£16.99 earns 16)</li><li>Gold customers get double</li><li>A negative amount raises <code>ValueError</code></li></ul><p>Write <code>test_</code> functions using <code>assert</code>. For errors, use <code>with raises(ValueError):</code>. Your tests run against the correct version (where they should all pass) and against <b>four broken versions</b>. Aim to catch every one.</p>`,
+     starter: py`def test_one_point_per_pound():
+    assert points_for(10, False) == 10
+
+# Add more tests. Think about:
+# - what if the amount has pence?
+# - what about Gold customers?
+# - what about bad input?
+`,
+     impls: [
+       ["Your tests pass on the correct version", py`def points_for(amount, is_gold):
+    if amount < 0:
+        raise ValueError("negative amount")
+    return int(amount) * (2 if is_gold else 1)`, true],
+       ["Catches bug: forgets to double for Gold", py`def points_for(amount, is_gold):
+    if amount < 0:
+        raise ValueError("negative amount")
+    return int(amount)`, false],
+       ["Catches bug: rounds pence instead of dropping them", py`def points_for(amount, is_gold):
+    if amount < 0:
+        raise ValueError("negative amount")
+    return round(amount) * (2 if is_gold else 1)`, false],
+       ["Catches bug: accepts negative amounts", py`def points_for(amount, is_gold):
+    return int(amount) * (2 if is_gold else 1)`, false],
+       ["Catches bug: doubles for everyone", py`def points_for(amount, is_gold):
+    if amount < 0:
+        raise ValueError("negative amount")
+    return int(amount) * 2`, false]],
+     solution: py`def test_one_point_per_pound():
+    assert points_for(10, False) == 10
+
+def test_pence_are_dropped():
+    assert points_for(16.99, False) == 16
+
+def test_gold_gets_double():
+    assert points_for(10, True) == 20
+
+def test_negative_amount_rejected():
+    with raises(ValueError):
+        points_for(-1, False)
+`, why: `This is called <b>mutation testing</b>: plant bugs and see whether your tests notice. Tests that pass on broken code give false confidence. Choosing the cases that matter (edges like £16.99, both kinds of customer, bad input) is the skill, and it's exactly what you'd use to check code an AI wrote for you.` }
+ ]},
+
+ { sec: "Working in a team" },
+ { id: "c-ai", title: "Working with AI assistants",
+   intro: `We all use AI coding tools here. Some people get great results and some ship a mess. The difference is mostly the person driving.`,
+   steps: [
+   { t: "read", html: `<p>AI assistants now write a lot of first-draft code. The skills that matter are shifting towards:</p><ul><li><b>Specifying clearly:</b> context, constraints, examples, and what "done" looks like.</li><li><b>Breaking work down</b> into steps small enough to check.</li><li><b>Verifying:</b> reading the output, running it, testing it, and catching plausible-looking mistakes.</li><li><b>Judgement:</b> recognising when output is wrong, over-built, insecure, or not what was needed.</li></ul><p>You're still responsible for everything you ship, whoever typed it.</p>` },
+   { t: "mcq", q: `Which request will get the best result?`, opts: [
+     [`"Add discounts."`, false, `The assistant has to guess what kind, where, with what rules, and how you'll check it. It will guess something plausible and probably wrong.`],
+     [`"You are a world-class 10x engineer. Write perfect, bug-free discount code."`, false, `Flattery and demands add no information. The assistant still doesn't know what you need.`],
+     [`"In <code>shop/basket.py</code>, add a <code>PercentOff</code> pricing rule like the existing <code>NoDiscount</code>. 10% off should turn £32.00 into £28.80. Don't change Basket's public methods. Add unit tests next to the existing ones in <code>tests/test_basket.py</code> and run them."`, true, `Where the code lives, a pattern to follow, a concrete example, constraints, and how to verify. That's a spec, and it's exactly what a human teammate would need too.`]] },
+   { t: "spot", q: `An assistant wrote this to give 10% off orders over £50. Each item has <code>.price</code> and <code>.qty</code>. There are three problems. Click them.`, code: py`
+def apply_discount(order):
+    total = sum(item.price for item in order.items)
+    if total > 50:
+        total = total * 0.1
+    order.total = round(total)
+    return order.total
+`, bad: [1, 3, 4], why: `Line 2 ignores quantity. Line 4 charges 10% of the price instead of taking 10% off (it should be <code>* 0.9</code>). Line 5 rounds to whole pounds. Every line <i>looks</i> reasonable at a glance, which is exactly why AI-written code needs careful reading and tests.` },
+   { t: "mcq", q: `The assistant tells you to <code>pip install fastcsv-pro</code>. You've never heard of it. What do you do?`, opts: [
+     ["Install it: the assistant wouldn't suggest something fake", false, `Assistants sometimes invent plausible-sounding package names. Attackers register those names with malicious code ("slopsquatting"), and installing a package runs its code on your machine.`],
+     ["Check it exists, is the package you think it is, and is maintained (its PyPI page, repository, download numbers), and ask whether the built-in <code>csv</code> module would do", true, `Yes. Every dependency is code you're choosing to trust. Fewer dependencies means less risk.`],
+     ["Install it in a virtual environment so it's safe", false, `A virtual environment keeps packages tidy. It doesn't stop malicious code running with your permissions.`]] },
+   { t: "write", q: `Write a request to an AI assistant to add a "sort by price" option to the shop's album list page. Make up reasonable details about the codebase.`, placeholder: "In ... please ...",
+     model: `In the Flask app, the album list is rendered by albums() in shop/views.py using templates/albums.html. Add a "Sort by price" option next to the existing "Sort by title" link.
+
+- ?sort=price_asc and ?sort=price_desc should sort by price. Any other value keeps the current title sort.
+- Sort in the SQL query (ORDER BY), not in Python.
+- Don't add any new dependencies.
+- Add tests to tests/test_views.py for both directions and for an unknown sort value, then run the whole test suite.
+
+Before changing anything, show me a short plan, and ask if anything is unclear.`,
+     checklist: ["Said where the relevant code lives", "Described the behaviour wanted, with specific values", "Gave constraints (what not to change, no new dependencies, and so on)", "Said how to verify it (tests to add or run)", "Asked for a plan or a small first step, or invited questions"] },
+   { t: "mcq", q: `The assistant's change passes every test, but you don't understand one part of it. Merge?`, opts: [
+     ["Yes: the tests pass", false, `Then you can't explain it in review, maintain it, or spot what the tests missed.`],
+     ["Not yet. Ask the assistant or a teammate to explain it, read the docs, and merge once you could explain the change yourself", true, `A good rule: never merge code you couldn't defend in a code review.`],
+     ["Delete that part and see if the tests still pass", false, `If they do, either your tests are missing a case or the code really was unnecessary. Either way, you need to understand it first.`]] }
+ ]},
+
+ { id: "c-review", title: "Code review",
+   intro: `Reviews here have got a bit… spicy. Let's work out what good looks like, on both sides.`,
+   steps: [
+   { t: "read", html: `<p>Code review catches bugs, spreads knowledge around the team, and keeps the codebase consistent. Good review comments are:</p><ul><li><b>Specific:</b> point at the problem and explain why it matters.</li><li><b>Kind:</b> about the code, not the person.</li><li><b>Clear about weight:</b> is this blocking, or a "nit" (a small preference)?</li><li><b>Helpful:</b> suggest a way forward where you can.</li></ul><p>Small pull requests get better reviews. Nobody reads 2,000 lines carefully.</p>` },
+   { t: "mcq", q: `A PR loads every order into memory just to count them. Which comment is best?`, opts: [
+     [`"This is wrong."`, false, `It doesn't say what's wrong, why it matters, or what to do instead.`],
+     [`"Why would you do it like this??"`, false, `It reads as an attack, so the author gets defensive instead of fixing it.`],
+     [`"This loads every order into memory just to count them, which will get slow as orders grow. Could we use <code>SELECT COUNT(*)</code> instead? Happy to pair on it."`, true, `A specific problem, why it matters, a concrete suggestion, and an offer to help.`],
+     [`"nit: lgtm"`, false, `This approves a real performance problem and calls it a nitpick.`]] },
+   { t: "sort", q: `Block the merge, or nice-to-have?`, buckets: ["Must fix before merge", "Nit (nice to have)"], items: [
+     ["SQL built with an f-string from user input", 0, "SQL injection. Always blocking."],
+     ["A variable could have a clearer name", 1, "Worth mentioning, labelled as a nit."],
+     ["No test for the new refund path", 0, "Money logic with no test."],
+     ["\"I'd use a list comprehension here\"", 1, "A style preference."],
+     ["Deletes customer accounts with no confirmation step", 0, "Irreversible and risky."],
+     ["An extra blank line", 1, "Let an automatic formatter deal with this."]] },
+   { t: "mcq", q: `A reviewer leaves 14 comments on your PR, some quite blunt. What's the best response?`, opts: [
+     ["Fix everything silently, whatever you think", false, `Some comments might be wrong, and silent changes teach nobody anything.`],
+     ["Assume good intent: fix what's right, ask about what's unclear, and push back with reasons where you disagree", true, `Reviews are a conversation. If the tone is a pattern, raise it privately later, separately from the code.`],
+     ["Argue every point in the PR thread", false, `Long threads go nowhere. For a real disagreement, a five-minute call usually settles it.`]] },
+   { t: "mcq", q: `Which PR is most likely to get a careful review?`, opts: [
+     [`2,400 lines: "Refactor + new checkout + fix typos"`, false, `Reviewers skim, and bugs slip through in the noise.`],
+     ["180 lines, one feature, with a description of what changed, why, and how to test it", true, `Small and focused, with the context explained up front.`],
+     ["40 lines with no description", false, `Small is good, but now the reviewer has to work out why you made the change.`]] }
+ ]},
+
+ { id: "c-git", title: "Version control habits",
+   intro: `I ran <code>git log</code> to find out why the discount code changed. Every commit message says "fix" or "changes".`,
+   steps: [
+   { t: "read", html: `<p>Your git history is a story the team reads later, usually while debugging something urgent.</p><ul><li>Make <b>small, focused commits</b>, one logical change each.</li><li><b>Commit messages</b> start with a short summary in the imperative ("Fix…", "Add…"), followed by <i>why</i> if it isn't obvious.</li><li>Use a <b>branch</b> for each change, merged through a pull request.</li><li><b>Never commit secrets.</b> Git remembers everything.</li></ul>` },
+   { t: "mcq", q: `Which is the best commit message?`, opts: [
+     ["<code>fix</code>", false, `Fix what? Why? Nobody can tell.`],
+     ["<code>Updated files</code>", false, `Every commit updates files.`],
+     [`<pre>Fix gift card balance going negative on refunds
+
+Refunds called spend() with a negative amount, which
+skipped the balance check. Add a separate refund()
+method and a test.</pre>`, true, `A summary line, then the cause and the approach. Six months from now, someone will thank you.`],
+     ["<code>FINALLY got it working!!!</code>", false, `Relatable, but it tells the reader nothing about what changed.`]] },
+   { t: "order", q: `Put a typical feature workflow in order.`, items: [
+     "Pull the latest main branch",
+     "Create a branch for the change",
+     "Make small commits as you go",
+     "Push, and open a pull request with a description",
+     "Respond to the review and update",
+     "Merge, then delete the branch"],
+     why: `Starting from the latest main avoids painful conflicts later. Deleting merged branches keeps the repository easy to find your way around.` },
+   { t: "mcq", q: `You committed a live API key and pushed it. What now?`, opts: [
+     ["Delete the line in a new commit", false, `The key is still in the history, readable by anyone with access. Bots scan public repositories for keys within minutes.`],
+     ["Revoke the key and issue a new one straight away, then remove it from the code and load it from an environment variable", true, `Assume a leaked secret is compromised. Replacing it is the only real fix. Cleaning up the history is optional tidying.`],
+     ["Make the repository private", false, `It may already have been copied, and everyone with access can still see it.`]] }
+ ]},
+
+ { id: "c-debug", title: "Debugging methodically",
+   intro: `Checkout crashes for some customers and not others. Two people have been changing random things for an hour.`,
+   steps: [
+   { t: "read", html: `<p>Debugging is the scientific method applied to code:</p><ol><li><b>Reproduce</b> it reliably.</li><li><b>Read</b> the error properly. In a Python traceback, start at the bottom line, then follow the frames upward.</li><li><b>Form a hypothesis</b> and test it, changing one thing at a time.</li><li><b>Narrow it down:</b> binary search, either through the code or through the history with <code>git bisect</code>.</li><li><b>Fix the cause</b>, add a test, and ask what else might have the same flaw.</li></ol><p>If you change random things until it works, you don't know why it broke, or why it's fixed.</p>` },
+   { t: "mcq", q: `What's the most likely cause?`, code: py`
+Traceback (most recent call last):
+  File "shop/web.py", line 88, in checkout
+    total = basket.total()
+  File "shop/basket.py", line 41, in total
+    return self.pricing.apply(subtotal)
+AttributeError: 'NoneType' object has no attribute 'apply'
+`, opts: [
+     ["The basket's <code>pricing</code> is <code>None</code>: some baskets are created without a pricing rule", true, `Yes. "'NoneType' object has no attribute 'apply'" means <code>self.pricing</code> is None. Next question: where do baskets get created without one? That would also explain why only some customers are affected.`],
+     ["There's a bug inside <code>apply()</code>", false, `apply() is never reached. Python fails while trying to find it on None.`],
+     ["Line 88 of web.py has a typo", false, `Line 88 is just where the call started. The bottom line tells you what actually went wrong.`]] },
+   { t: "order", q: `"Checkout worked last Monday and it's broken today, with forty commits in between." Put the steps in order.`, items: [
+     "Reproduce the failure locally",
+     "Confirm last Monday's version works (your last known good commit)",
+     "Run git bisect between the good and bad commits to find the one that broke it",
+     "Read that commit's changes to understand the cause",
+     "Write a test that fails because of the bug",
+     "Fix it, and check the test passes"],
+     why: `<code>git bisect</code> binary-searches the history, so 40 commits take about 6 checks. It's one of the most underused tools in git.` },
+   { t: "mcq", q: `You've been stuck on a bug for 90 minutes. Best move?`, opts: [
+     ["Keep going: asking for help looks weak", false, `Teams lose far more time to people stuck in silence than to quick questions.`],
+     ["Write down what you know, what you've tried and what you expected, then ask a teammate, starting with that summary", true, `Writing it down often solves it by itself ("rubber ducking"). If not, your teammate can help in minutes instead of starting from zero.`],
+     ["Rewrite the whole module from scratch", false, `You'd probably bring the bug back, plus new ones, without ever learning the cause.`]] }
+ ]},
+
+ { id: "c-security", title: "Security habits",
+   intro: `We take payments and store customer details. Security isn't someone else's job here, because there is no someone else.`,
+   steps: [
+   { t: "read", html: `<p>Every developer needs a security baseline:</p><ul><li><b>Never trust input.</b> Use placeholders for SQL (remember the injection boss level?), and validate and escape user data.</li><li><b>Keep secrets out of code.</b> Use environment variables or a secrets manager.</li><li><b>Least privilege.</b> Give people, programs and AI agents only the access they need.</li><li><b>Look after dependencies.</b> Pin versions, update regularly, and question every new package.</li><li><b>Protect personal data.</b> Think before you log it, copy it, or paste it into tools.</li></ul><p>AI assistants learned from a huge amount of insecure code, and they repeat those patterns confidently. Reviewing for security is your job.</p>` },
+   { t: "sort", q: `Fine or risky?`, buckets: ["Fine", "Risky"], items: [
+     ["An API key in a <code>.env</code> file listed in <code>.gitignore</code>", 0, "It stays out of the repository."],
+     ["An API key pasted into the code \"just for testing\"", 1, "\"Just for testing\" code gets committed all the time."],
+     ["Queries using <code>?</code> placeholders", 0, "The standard defence against SQL injection."],
+     ["The website's database user can drop tables", 1, "If the site is compromised, the attacker gets that power too. Least privilege."],
+     ["Dependency versions pinned in a lockfile", 0, "Builds are repeatable, and nothing unexpected sneaks in."],
+     ["Pasting the customer list into a public AI chatbot to tidy it up", 1, "Personal data has left your control, and you may have broken data protection law."],
+     ["Logging full card numbers to help with debugging", 1, "Logs get copied everywhere, and card data has strict rules (PCI DSS)."]] },
+   { t: "spot", q: `Click the three lines with security problems.`, code: py`
+API_KEY = "sk_live_51HxQ2eFerryStreet"
+
+def find_customer(name):
+    sql = f"SELECT * FROM customers WHERE name = '{name}'"
+    return db.execute(sql).fetchall()
+
+def reset_password(user, new_password):
+    user.set_password(new_password)
+    log.info(f"Reset password for {user.email} to {new_password}")
+`, bad: [0, 3, 8], why: `A hard-coded live key, SQL built from user input, and a password written into the logs. All three are common, and all three turn up in AI-generated code.` },
+   { t: "mcq", q: `An AI coding agent asks for permission to run any shell command and push straight to main. You want it to fix one failing test. What do you allow?`, opts: [
+     ["Everything: it's faster", false, `One bad command or poisoned instruction, and it could delete files, leak secrets, or ship broken code to customers.`],
+     ["The narrowest access that does the job: edit files and run tests on a branch, with you reviewing before anything is merged", true, `Least privilege applies to tools and agents just as much as to people.`],
+     ["Nothing: agents are never safe", false, `With sensible limits they're very productive. The answer is limits, not avoidance.`]] }
+ ]},
+
+ { sec: "Bigger picture" },
+ { id: "c-tradeoffs", title: "Trade-offs and decisions",
+   intro: `A new hire wants to rebuild the site as microservices on Kubernetes. We get about 200 visitors a day.`,
+   steps: [
+   { t: "read", html: `<p>Senior engineers rarely say "X is best". They say "X costs this and buys that, and here's why it fits <i>our</i> situation." Useful questions to ask:</p><ul><li>What problem are we actually solving, and how big is it?</li><li>What are the options? There are always at least two, and "do nothing" is one of them.</li><li>What does each option cost to build, run, learn and undo?</li><li>What fits this team's skills and timeline?</li></ul><p>Prefer boring, well-understood technology unless something new solves a problem you actually have. And write important decisions down, so future teammates know <i>why</i>.</p>` },
+   { t: "mcq", q: `About 200 visitors a day, and a team of three. The proposal is six microservices on Kubernetes. Your view?`, opts: [
+     ["Go for it: it's how big companies do it", false, `Big companies adopted microservices to solve problems of scale and team size that we don't have. We'd pay all the running costs for none of the benefits.`],
+     ["Keep one well-structured app, and revisit if real scaling or team-size problems appear", true, `A single app (a "monolith") is simpler to build, test, deploy and debug. Splitting it later, along boundaries you understand by then, is very doable.`],
+     ["Rewrite it in a faster language first", false, `Speed isn't the problem at 200 visitors a day.`]] },
+   { t: "mcq", q: `The site is moving to several servers that all write orders at the same time. SQLite or PostgreSQL?`, opts: [
+     ["SQLite", false, `SQLite is excellent, but it's a file on one machine's disk and allows one writer at a time. Several servers writing at once is exactly where it struggles.`],
+     ["PostgreSQL", true, `It's a database server built for many connections writing at once over a network. The changed situation justifies the extra running cost.`],
+     ["A spreadsheet", false, `Please no.`]] },
+   { t: "write", q: `Write a short <b>decision record</b>: should the shop build its own card payment handling, or use a payment provider like Stripe? Include the context, the options, the decision, and the consequences.`, placeholder: "Context: ...",
+     model: `Context: We're adding online card payments. We're a team of three with no payment-security specialists.
+
+Options: (1) Handle card details ourselves. (2) Use a payment provider such as Stripe, so card data never touches our servers.
+
+Decision: Use a payment provider.
+
+Why: Handling card numbers ourselves would mean strict PCI DSS compliance work, security audits, and serious liability if we were breached. A provider handles fraud checks, card rules and refunds, and we could be live in days instead of months.
+
+Consequences: We pay roughly 1.5% to 3% per transaction, and we depend on the provider's uptime and terms. Revisit if fees become a significant cost at our volume.`,
+     checklist: ["Described the context (team size, constraints)", "Listed at least two options", "Stated a clear decision", "Gave reasons, including security or compliance", "Named the costs or downsides of the choice", "Said when to revisit the decision"] }
+ ]},
+
+ { id: "c-comms", title: "Communicating",
+   intro: `Dot's latest ticket says, in full: "Make checkout faster." That's it. That's the ticket.`,
+   steps: [
+   { t: "read", html: `<p>More and more of the job is turning fuzzy goals into precise ones, for teammates and AI tools alike. Asking good questions, giving clear updates and raising bad news early are what make people want you on their team.</p>` },
+   { t: "mcq", q: `What's your first response to "Make checkout faster"?`, opts: [
+     ["Start optimising database queries", false, `You might speed up a part nobody's waiting on.`],
+     [`Ask: how slow is it now, for whom, measured how, and what would "fast enough" look like?`, true, `You can't hit a target nobody has defined. The answer might even be "the payment page looks frozen", which is a design problem, not a speed problem.`],
+     [`Reply "done" after adding caching everywhere`, false, `Caching adds complexity and brings its own bugs. Measure first.`]] },
+   { t: "write", q: `Dot asks: "Can we add gift wrapping?" Write the questions you'd ask before estimating the work.`, placeholder: "- ...",
+     model: `- Which products can be gift-wrapped: everything, or only albums?
+- Does it cost extra? Per item or per order?
+- Is there a choice of paper, or a gift message?
+- Should prices be hidden on the packing slip?
+- How will staff know to wrap an order? (Packing slip? Order screen?)
+- What happens on returns: is the wrapping fee refunded?
+- Is there a deadline, such as Christmas?`,
+     checklist: ["Asked about scope (which products, which options)", "Asked about money (price, refunds)", "Asked how it reaches the people doing the work (packing slip, order screen)", "Asked about timing or a deadline", "The questions are specific enough for Dot to answer quickly"] },
+   { t: "mcq", q: `Which end-of-day status update is most useful?`, opts: [
+     [`"Working on gift wrap."`, false, `Nobody can plan around this.`],
+     [`"Gift wrap: the checkout part is done and tested. Blocked on the wrapping price from Dot. Risk: the packing slip change might slip to Thursday. Next: the email template."`, true, `What's done, what's blocked and who can unblock it, the risks, and what's next. Thirty seconds to read, and everyone knows where things stand.`],
+     ["A 600-word message about everything you tried today", false, `The important parts are buried. Lead with the status, and offer details if anyone wants them.`]] },
+   { t: "mcq", q: `It's day 2 of a task you estimated at 3 days. You now think it'll take 8. What do you do?`, opts: [
+     ["Say nothing and work late to catch up", false, `Surprises at the deadline are the worst kind. People needed the chance to plan around it.`],
+     ["Tell the team now, with the new estimate, the reason, and options (cut scope, ship in stages, or accept the delay)", true, `Bad news early is useful information. Bad news late is a crisis.`],
+     ["Quietly drop some requirements", false, `Other people are relying on those. Trading off scope is a team decision.`]] }
+ ]},
+
+ { sec: "Final round" },
+ { id: "c-boss", title: "Boss level: a week on the team", boss: true,
+   intro: `Monday morning. New ticket: <i>"Customers want to save albums to a wishlist."</i> It's yours, start to finish.`,
+   steps: [
+   { t: "mcq", q: `Monday, 9:15. First move?`, opts: [
+     ["Ask an AI to generate the whole feature", false, `You don't know what "the whole feature" is yet.`],
+     ["Clarify scope with Dot (logged-in customers only? shareable? an alert when an album is back in stock?) and check what already exists in the database", true, `Ten minutes of questions can save days. And you might already have a <code>wishlist</code> table from the SQL course…`],
+     ["Start building the most complete version you can imagine", false, `YAGNI. Build what's actually needed, then extend it.`]] },
+   { t: "order", q: `Dot says: logged-in customers only, no sharing, and stock alerts can come later. Put the plan in order.`, items: [
+     "Design the table: wishlist(customer_id, album_id), unique per pair",
+     "Write tests for adding, removing and listing wishlist items",
+     "Implement the wishlist functions until the tests pass",
+     "Add the button and the wishlist page",
+     "Try it by hand on a test copy of the site",
+     "Open a small PR with a clear description"] },
+   { t: "spot", q: `Tuesday. An assistant drafted the "add to wishlist" function. Click the two problem lines.`, code: py`
+def add_to_wishlist(con, customer_id, album_id):
+    rows = con.execute(f"SELECT * FROM wishlist WHERE customer_id = {customer_id}").fetchall()
+    if album_id in rows:
+        return
+    con.execute("INSERT INTO wishlist (customer_id, album_id) VALUES (?, ?)", (customer_id, album_id))
+    con.commit()
+`, bad: [1, 2], why: `Line 2 builds SQL with an f-string. Line 3 compares a number to a list of row <i>tuples</i>, so it never matches and duplicates get added. It looks perfectly reasonable, it would pass a quick manual test, and it's wrong.` },
+   { t: "mcq", q: `Wednesday. A reviewer comments: "Instead of checking for duplicates in Python, add <code>UNIQUE (customer_id, album_id)</code> and use <code>INSERT OR IGNORE</code>." Your response?`, opts: [
+     ["Agree: the database enforces it even when two requests arrive at once, and the Python gets simpler", true, `A rule in the database can't be raced, forgotten or bypassed. That's a good review, and a good response.`],
+     ["Push back: Python checks are more flexible", false, `Flexibility isn't the goal for a rule that must always hold.`],
+     ["Do both, to be extra safe", false, `The Python check adds nothing but a second query and more code to maintain.`]] },
+   { t: "mcq", q: `Friday, 4:45pm. It's approved. Deploy now?`, opts: [
+     ["Yes: ship it before the weekend", false, `If it breaks, either nobody's around to notice, or someone's weekend is ruined.`],
+     ["Deploy Monday morning while the team is around, or ship it switched off behind a feature flag and turn it on when someone can watch", true, `A wishlist isn't urgent. Choose a moment when problems will be noticed and fixed quickly.`],
+     ["Deploy, and mute the alerts", false, `Hiding problems is not the same as avoiding them.`]] },
+   { t: "write", q: `Write the PR description for the wishlist feature.`, placeholder: "## What\n...",
+     model: `## What
+Logged-in customers can save albums to a wishlist and see them on a new /wishlist page.
+
+## Why
+Ticket #142: customers asked for a way to remember albums for later. Sharing and stock alerts are out of scope for now (agreed with Dot).
+
+## How
+- New table wishlist(customer_id, album_id) with UNIQUE(customer_id, album_id). Adding uses INSERT OR IGNORE.
+- add/remove/list functions in shop/wishlist.py, all using ? placeholders.
+- A heart button on album pages, and a new /wishlist page.
+
+## Testing
+- Unit tests for adding (including duplicates), removing and listing.
+- Tested by hand: add, add again, remove, and a logged-out user is sent to the login page.
+
+## Risks
+New table only, with no changes to existing data. Safe to roll back.`,
+     checklist: ["Says what changed", "Says why, and links the ticket", "Notes what's out of scope", "Explains how it works at a high level", "Describes how it was tested", "Mentions risks or rollback"] }
+ ]}
+];
+
+const TRACKS = {
+  oop: { name: "Objects", who: "Dot, shop owner", av: "D", lessons: OOP,
+         ranks: [[0, "Scripter"], [35, "Class Act"], [85, "Encapsulator"], [145, "Pattern Spotter"], [205, "Object Architect"]] },
+  craft: { name: "Craft", who: "Rafa, tech lead", av: "R", lessons: CRAFT,
+         ranks: [[0, "New Starter"], [35, "Teammate"], [85, "Trusted Reviewer"], [145, "Problem Solver"], [205, "Tech Lead Material"]] },
+};
+
+/* ---------- Step engine ---------- */
+function tLessons(t) { return TRACKS[t].lessons.filter(x => x.id); }
+function tLesson(t, id) { return tLessons(t).find(l => l.id === id) || tLessons(t)[0]; }
+function reached(t, id) { return tstate[t].reached[id] || 0; }
+function isDone(t, les) { return reached(t, les.id) >= les.steps.length; }
+function tXp(t) {
+  const x = Object.values(tstate[t].xp).reduce((a, b) => a + b, 0);
+  return x + tLessons(t).filter(l => isDone(t, l)).length * LESSON_BONUS;
+}
+function lessonXp(t, les) {
+  let x = 0;
+  for (const k in tstate[t].xp) if (k.startsWith(les.id + ":")) x += tstate[t].xp[k];
+  return x + (isDone(t, les) ? LESSON_BONUS : 0);
+}
+
+function stepRenderTop(t) {
+  const x = tXp(t), ranks = TRACKS[t].ranks;
+  let r = ranks[0], next = null;
+  for (let i = 0; i < ranks.length; i++) if (x >= ranks[i][0]) { r = ranks[i]; next = ranks[i + 1] || null; }
+  $("rank-name").textContent = r[1];
+  $("xp-text").textContent = next ? `${x} XP · ${next[0] - x} to ${next[1]}` : `${x} XP · top rank`;
+  const pct = next ? ((x - r[0]) / (next[0] - r[0])) * 100 : 100;
+  $("xp-fill").style.width = Math.max(3, pct) + "%";
+}
+
+function stepRenderNav(t) {
+  const list = tLessons(t);
+  const doneCount = list.filter(l => isDone(t, l)).length;
+  let n = 0, html = `<h2>${doneCount} of ${list.length} done</h2><ol>`;
+  for (const item of TRACKS[t].lessons) {
+    if (item.sec) { html += `<li class="section-label">${esc(item.sec)}</li>`; continue; }
+    n++;
+    const done = isDone(t, item);
+    const cls = [done ? "done" : "", item.boss ? "boss" : "", item.id === tstate[t].current ? "current" : ""].join(" ");
+    html += `<li><button type="button" class="${cls}" data-id="${item.id}"><span class="num">${done ? "✓" : n}</span><span>${esc(item.title)}</span></button></li>`;
+  }
+  $("nav").innerHTML = html + "</ol>";
+}
+
+function setTrack(t) {
+  active = t;
+  try { localStorage.setItem("ferry-street-active", t); } catch (e) {}
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.track === t)));
+  $("app").classList.remove("nav-open"); $("nav-toggle").setAttribute("aria-expanded", "false");
+  if (t === "sql") renderLesson(); else stepRenderLesson(t);
+  window.scrollTo({ top: 0 });
+}
+
+function stepGo(id) {
+  tstate[active].current = id; tsave();
+  stepRenderLesson(active);
+  $("app").classList.remove("nav-open"); $("nav-toggle").setAttribute("aria-expanded", "false");
+  window.scrollTo({ top: 0 });
+}
+
+function stepRenderLesson(t, focus) {
+  const T = TRACKS[t], list = tLessons(t);
+  const les = tLesson(t, tstate[t].current);
+  tstate[t].current = les.id;
+  const idx = list.indexOf(les), r = reached(t, les.id), n = les.steps.length, done = r >= n;
+  const dots = les.steps.map((s, i) => `<i class="${i < r ? "ok" : i === r ? "on" : ""}"></i>`).join("");
+  $("main").innerHTML = `
+    <div class="lesson-head">
+      <div class="eyebrow">${les.boss ? "Boss level" : `Lesson ${idx + 1} of ${list.length}`}${done ? " · completed" : ""}</div>
+      <h2>${esc(les.title)}</h2>
+    </div>
+    <div class="memo">
+      <div class="avatar" aria-hidden="true">${T.av}</div>
+      <div class="bubble"><div class="who">${esc(les.who || T.who)}</div><p>${les.intro}</p></div>
+    </div>
+    <div class="progress-dots" role="img" aria-label="Step ${Math.min(r + 1, n)} of ${n}">${dots}</div>
+    <div class="steps" id="steps"></div>`;
+  const box = $("steps");
+  for (let i = 0; i <= Math.min(r, n - 1); i++) box.appendChild(renderStep(t, les, i, i < r));
+  if (done) {
+    const next = list[idx + 1];
+    box.insertAdjacentHTML("beforeend", `<div class="finale" id="step-finish"><span class="eyebrow">Lesson complete</span>
+      <h3>${esc(les.title)}: ${lessonXp(t, les)} XP earned</h3>
+      <div class="actions">${next ? `<button class="btn btn-primary" type="button" id="next-lesson">Next: ${esc(next.title)} →</button>` : `<span><b>That's the whole ${esc(T.name)} course.</b> Well done.</span>`}
+      <button class="btn btn-ghost" type="button" id="restart-lesson">Go through it again</button></div></div>`);
+    if (next) $("next-lesson").onclick = () => stepGo(next.id);
+    $("restart-lesson").onclick = () => {
+      tstate[t].reached[les.id] = 0; tsave();
+      for (const k in attempts) if (k.startsWith(les.id + ":")) delete attempts[k];
+      stepRenderLesson(t); window.scrollTo({ top: 0 });
+    };
+  }
+  stepRenderNav(t); stepRenderTop(t);
+  if (focus !== undefined) {
+    const el = document.getElementById(focus === "finish" ? "step-finish" : "step-" + focus);
+    if (el) el.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+  }
+}
+
+function renderStep(t, les, i, solved) {
+  const s = les.steps[i], key = les.id + ":" + i;
+  const el = document.createElement("section");
+  el.className = "step " + s.t + (solved ? " solved" : "");
+  el.id = "step-" + i;
+  const head = s.t === "read" ? "" : `<div class="step-kind"><span class="eyebrow">${KIND[s.t]}</span>${solved ? `<span class="done-chip">✓ done</span>` : ""}</div>`;
+  el.innerHTML = head + (s.q ? `<div class="q">${s.q}</div>` : "") + (s.code && s.t !== "spot" ? C(s.code) : "") + `<div class="body"></div><div class="fb" aria-live="polite"></div>`;
+  const ctx = { t, les, i, s, key, el, body: el.querySelector(".body"), fb: el.querySelector(".fb"), solved };
+  BUILD[s.t](ctx);
+  if (solved && s.why) ctx.fb.innerHTML = `<div class="explain">${s.why}</div>`;
+  return el;
+}
+
+function contButton(ctx) {
+  const last = ctx.i === ctx.les.steps.length - 1;
+  return `<div class="actions"><button class="btn btn-primary" type="button" data-cont>${last ? "Finish lesson" : "Continue"} →</button></div>`;
+}
+function bindCont(ctx) {
+  const b = ctx.fb.querySelector("[data-cont]");
+  b.onclick = () => advance(ctx.t, ctx.les, ctx.i);
+  b.focus({ preventScroll: true });
+}
+
+function succeed(ctx, opts = {}) {
+  const { t, s, key, fb } = ctx;
+  let gained = "";
+  if (!(key in tstate[t].xp)) {
+    const full = FULL[s.t];
+    const x = opts.xp != null ? opts.xp : ((attempts[key] || 0) === 0 ? full : Math.ceil(full / 2));
+    tstate[t].xp[key] = x; tsave();
+    gained = ` +${x} XP`;
+    stepRenderTop(t);
+  }
+  fb.innerHTML = `<div class="feedback good"><div class="msg">${pick(PRAISE)}${gained}</div></div>${opts.extra || ""}${s.why ? `<div class="explain">${s.why}</div>` : ""}${contButton(ctx)}`;
+  bindCont(ctx);
+}
+function miss(ctx, html) {
+  attempts[ctx.key] = (attempts[ctx.key] || 0) + 1;
+  ctx.fb.innerHTML = `<div class="feedback bad"><div class="msg">${html}</div></div>`;
+}
+function note(ctx, html) { ctx.fb.innerHTML = `<div class="feedback info"><div class="msg">${html}</div></div>`; }
+
+function advance(t, les, i) {
+  const was = isDone(t, les);
+  tstate[t].reached[les.id] = Math.max(reached(t, les.id), i + 1); tsave();
+  const now = isDone(t, les);
+  stepRenderLesson(t, now ? "finish" : i + 1);
+  if (now && !was) { const f = $("step-finish"); if (f) confetti(f); }
+}
+
+const normOut = x => String(x).replace(/\r/g, "").split("\n").map(l => l.trim().replace(/\s+/g, " ")).join("\n").trim();
+const safeId = k => k.replace(/[^a-z0-9]/gi, "-");
+
+function seededOrder(n, seed) {
+  let h = 2166136261;
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  const rnd = () => (h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0, (h >>> 0) / 4294967296);
+  const a = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  if (a.every((v, i) => v === i)) a.push(a.shift());
+  return a;
+}
+
+const BUILD = {
+  read(ctx) {
+    ctx.body.innerHTML = ctx.s.html;
+    if (!ctx.solved) { ctx.fb.innerHTML = contButton(ctx); ctx.fb.querySelector("[data-cont]").onclick = () => advance(ctx.t, ctx.les, ctx.i); }
+  },
+
+  mcq(ctx) {
+    const { s, body, solved } = ctx;
+    const multi = s.opts.filter(o => o[1]).length > 1;
+    body.innerHTML = `${multi && !solved ? `<p class="hint-line">Pick all that apply.</p>` : ""}<div class="opts">${s.opts.map((o, j) => `<button type="button" class="opt" data-j="${j}"><span>${o[0]}</span></button>`).join("")}</div>${multi && !solved ? `<div class="actions"><button class="btn btn-primary" type="button" data-check>Check</button></div>` : ""}`;
+    const btns = [...body.querySelectorAll(".opt")];
+    const showWhy = (b, j) => { if (!b.querySelector(".why")) b.insertAdjacentHTML("beforeend", `<span class="why">${s.opts[j][2]}</span>`); };
+    if (solved) { btns.forEach((b, j) => { b.disabled = true; if (s.opts[j][1]) { b.classList.add("right"); showWhy(b, j); } }); return; }
+    if (!multi) {
+      btns.forEach((b, j) => b.onclick = () => {
+        if (s.opts[j][1]) { b.classList.add("right"); showWhy(b, j); btns.forEach(x => x.disabled = true); succeed(ctx); }
+        else { b.classList.add("wrong"); b.disabled = true; showWhy(b, j); miss(ctx, "Not that one. Read why, then try another."); }
+      });
+    } else {
+      btns.forEach(b => b.onclick = () => b.classList.toggle("picked"));
+      body.querySelector("[data-check]").onclick = () => {
+        const picked = btns.map(b => b.classList.contains("picked"));
+        if (s.opts.every((o, j) => o[1] === picked[j])) {
+          btns.forEach((b, j) => { b.disabled = true; b.classList.remove("picked"); if (s.opts[j][1]) { b.classList.add("right"); showWhy(b, j); } });
+          body.querySelector("[data-check]").remove(); succeed(ctx);
+        } else {
+          const right = s.opts.filter((o, j) => o[1] && picked[j]).length, total = s.opts.filter(o => o[1]).length;
+          const extra = s.opts.filter((o, j) => !o[1] && picked[j]).length;
+          miss(ctx, `You have ${right} of ${total} right${extra ? `, plus ${extra} that shouldn't be picked` : ""}.`);
+        }
+      };
+    }
+  },
+
+  predict(ctx) {
+    const { s, body, solved, key } = ctx;
+    const answers = [].concat(s.answer);
+    const multiLine = answers[0].includes("\n");
+    if (solved) { body.innerHTML = `<div class="model"><b>Output</b><pre>${esc(answers[0])}</pre></div>`; return; }
+    const id = "pred-" + safeId(key);
+    body.innerHTML = `<label for="${id}" class="hint-line">What does it print?${multiLine ? " One line per print()." : ""}</label>
+      ${multiLine ? `<textarea id="${id}" class="answer-input" rows="${answers[0].split("\n").length}" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>` : `<input id="${id}" class="answer-input" spellcheck="false" autocapitalize="off" autocomplete="off">`}
+      <div class="actions"><button class="btn btn-primary" type="button" data-check>Check</button><span data-giveup></span></div>`;
+    const inp = body.querySelector(".answer-input");
+    const check = () => {
+      const v = normOut(inp.value);
+      if (!v) { note(ctx, "Type what you think it prints first."); return; }
+      if (answers.some(a => normOut(a) === v)) {
+        inp.readOnly = true; body.querySelector(".actions").remove();
+        succeed(ctx, { extra: `<div class="model"><b>Output</b><pre>${esc(answers[0])}</pre></div>` });
+      } else {
+        miss(ctx, multiLine ? "Not quite. Check each line: one per print() call." : "Not quite. Trace it through one line at a time.");
+        const g = body.querySelector("[data-giveup]");
+        if (attempts[key] >= 2 && g && !g.innerHTML) {
+          g.innerHTML = `<button class="btn btn-ghost" type="button">Show answer</button>`;
+          g.firstChild.onclick = () => { inp.value = answers[0]; check(); };
+        }
+      }
+    };
+    body.querySelector("[data-check]").onclick = check;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter" && (!multiLine || e.ctrlKey || e.metaKey)) { e.preventDefault(); check(); } });
+  },
+
+  sort(ctx) {
+    const { s, body, solved, key } = ctx;
+    const choice = s.items.map(() => -1);
+    body.innerHTML = s.items.map((it, j) => `<div class="sort-row" data-j="${j}"><div class="item">${it[0]}${solved && it[2] ? `<small>${it[2]}</small>` : ""}</div>${solved ? `<span class="chip">${esc(s.buckets[it[1]])}</span>` : `<div class="seg" role="group" aria-label="Choose a group">${s.buckets.map((b, k) => `<button type="button" aria-pressed="false" data-k="${k}">${esc(b)}</button>`).join("")}</div>`}</div>`).join("") + (solved ? "" : `<div class="actions"><button class="btn btn-primary" type="button" data-check>Check</button></div>`);
+    if (solved) return;
+    const rows = [...body.querySelectorAll(".sort-row")];
+    const addSmall = (row, j, prefix) => { if (s.items[j][2] && !row.querySelector(".item small")) row.querySelector(".item").insertAdjacentHTML("beforeend", `<small>${prefix}${s.items[j][2]}</small>`); };
+    rows.forEach((row, j) => row.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+      choice[j] = +b.dataset.k;
+      row.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      row.classList.remove("right", "wrong");
+      const sm = row.querySelector(".item small"); if (sm) sm.remove();
+    }));
+    body.querySelector("[data-check]").onclick = () => {
+      const left = choice.filter(c => c < 0).length;
+      if (left) { note(ctx, `Sort every item first (${left} left).`); return; }
+      let wrong = 0;
+      rows.forEach((row, j) => { const ok = choice[j] === s.items[j][1]; row.classList.toggle("right", ok); row.classList.toggle("wrong", !ok); if (!ok) wrong++; });
+      if (!wrong) {
+        rows.forEach((row, j) => { row.querySelectorAll(".seg button").forEach(b => b.disabled = true); addSmall(row, j, ""); });
+        body.querySelector("[data-check]").remove(); succeed(ctx);
+      } else {
+        miss(ctx, `${s.items.length - wrong} of ${s.items.length} right. Change the ones marked ✗.`);
+        if (attempts[key] >= 2) rows.forEach((row, j) => { if (row.classList.contains("wrong")) addSmall(row, j, "Hint: "); });
+      }
+    };
+  },
+
+  spot(ctx) {
+    const { s, body, solved } = ctx;
+    const lines = trimCode(s.code).split("\n");
+    const sel = new Set();
+    body.innerHTML = `${solved ? "" : `<p class="hint-line">Tap lines to select them${s.bad.length > 1 ? ` (there are ${s.bad.length} to find)` : ""}, then press Check.</p>`}<div class="spot">${lines.map((l, j) => `<button type="button" data-j="${j}" aria-pressed="false" ${solved ? "disabled" : ""} class="${solved && s.bad.includes(j) ? "bad" : ""}"><span class="ln">${j + 1}</span><span>${hl(l) || " "}</span></button>`).join("")}</div>${solved ? "" : `<div class="actions"><button class="btn btn-primary" type="button" data-check>Check</button></div>`}`;
+    if (solved) return;
+    const btns = [...body.querySelectorAll(".spot button")];
+    btns.forEach((b, j) => b.onclick = () => {
+      if (sel.has(j)) sel.delete(j); else sel.add(j);
+      b.classList.toggle("sel", sel.has(j)); b.setAttribute("aria-pressed", String(sel.has(j)));
+    });
+    body.querySelector("[data-check]").onclick = () => {
+      if (!sel.size) { note(ctx, "Select at least one line first."); return; }
+      const found = s.bad.filter(j => sel.has(j)).length, extra = sel.size - found;
+      if (found === s.bad.length && !extra) {
+        btns.forEach((b, j) => { b.disabled = true; b.classList.remove("sel"); if (s.bad.includes(j)) b.classList.add("bad"); });
+        body.querySelector("[data-check]").remove(); succeed(ctx);
+      } else {
+        miss(ctx, `You found ${found} of ${s.bad.length}.${extra ? ` ${extra} of your picks ${extra === 1 ? "is" : "are"} fine as written.` : ""}`);
+      }
+    };
+  },
+
+  order(ctx) {
+    const { s, body, solved, key } = ctx;
+    let cur = solved ? s.items.map((_, j) => j) : seededOrder(s.items.length, key);
+    let locked = solved;
+    const render = (marks, focusSel) => {
+      body.innerHTML = `<ol class="order-list">${cur.map((j, p) => `<li class="${marks && marks[p] ? "right" : ""}"><span class="pos">${p + 1}.</span><span class="txt">${s.items[j]}</span>${locked ? "" : `<span class="mv"><button type="button" data-up="${p}" aria-label="Move up" ${p === 0 ? "disabled" : ""}>↑</button><button type="button" data-down="${p}" aria-label="Move down" ${p === cur.length - 1 ? "disabled" : ""}>↓</button></span>`}</li>`).join("")}</ol>${locked ? "" : `<div class="actions"><button class="btn btn-primary" type="button" data-check>Check order</button></div>`}`;
+      if (locked) return;
+      const move = (p, q) => { [cur[p], cur[q]] = [cur[q], cur[p]]; render(null, q === 0 ? `[data-down="0"]` : `[data-up="${q}"]`); };
+      body.querySelectorAll("[data-up]").forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up - 1));
+      body.querySelectorAll("[data-down]").forEach(b => b.onclick = () => { const p = +b.dataset.down; [cur[p], cur[p + 1]] = [cur[p + 1], cur[p]]; render(null, p + 1 === cur.length - 1 ? `[data-up="${p + 1}"]` : `[data-down="${p + 1}"]`); });
+      if (focusSel) { const f = body.querySelector(focusSel); if (f) f.focus(); }
+      body.querySelector("[data-check]").onclick = () => {
+        const marks = cur.map((j, p) => j === p);
+        const right = marks.filter(Boolean).length;
+        if (right === cur.length) { locked = true; render(marks); succeed(ctx); }
+        else { render(marks); miss(ctx, `${right} of ${cur.length} are in the right place (marked green). Keep going.`); }
+      };
+    };
+    render(solved ? cur.map(() => true) : null);
+  },
+
+  code(ctx) { labStep(ctx, false); },
+  tests(ctx) { labStep(ctx, true); },
+
+  write(ctx) {
+    const { t, s, key, body, solved } = ctx;
+    const draft = tstate[t].drafts[key] || "";
+    if (solved) {
+      body.innerHTML = `${draft ? `<div class="model" style="border-left-color:var(--accent)"><b>Your answer</b><pre>${esc(draft)}</pre></div>` : ""}<details class="reveal"><summary>Model answer</summary><div class="model"><pre>${esc(s.model)}</pre></div></details>`;
+      return;
+    }
+    const id = "write-" + safeId(key);
+    body.innerHTML = `<label for="${id}" class="hint-line">Write your answer here. It's saved as you type.</label>
+      <textarea id="${id}" class="write-input" placeholder="${esc(s.placeholder || "")}"${s.mono ? ` style="font-family:var(--font-mono);font-size:.9rem" spellcheck="false"` : ""}></textarea>
+      <div class="actions"><button class="btn btn-primary" type="button" data-compare>Compare with a model answer</button></div><div class="compare"></div>`;
+    const ta = body.querySelector(".write-input");
+    ta.value = draft;
+    ta.addEventListener("input", () => { tstate[t].drafts[key] = ta.value; tsave(); });
+    body.querySelector("[data-compare]").onclick = () => {
+      if (ta.value.trim().length < 40) { note(ctx, "Write a bit more first. Having a go before you look is what makes it stick."); return; }
+      ctx.fb.innerHTML = "";
+      body.querySelector("[data-compare]").closest(".actions").remove();
+      const cmp = body.querySelector(".compare");
+      cmp.innerHTML = `<div style="display:grid;gap:10px"><div class="model"><b>A model answer</b><pre>${esc(s.model)}</pre></div>
+        <p class="hint-line">Yours doesn't need to match it. Tick what your answer covers:</p>
+        <div class="checklist">${s.checklist.map((c, j) => `<label><input type="checkbox" id="${id}-c${j}"><span>${esc(c)}</span></label>`).join("")}</div>
+        <div class="actions"><button class="btn btn-primary" type="button" data-done>Done</button></div></div>`;
+      cmp.querySelector("[data-done]").onclick = () => {
+        const boxes = [...cmp.querySelectorAll(".checklist input")];
+        const missing = s.checklist.filter((c, j) => !boxes[j].checked);
+        const x = Math.max(1, Math.round(FULL.write * (s.checklist.length - missing.length) / s.checklist.length));
+        cmp.querySelectorAll("input").forEach(i => i.disabled = true);
+        cmp.querySelector("[data-done]").closest(".actions").remove();
+        succeed(ctx, { xp: x, extra: missing.length ? `<div class="explain"><b>Worth including next time:</b><ul>${missing.map(m => `<li>${esc(m)}</li>`).join("")}</ul></div>` : "" });
+      };
+    };
+  },
+};
+
+/* ---------- Python code labs (Pyodide, loaded on first use) ---------- */
+const PYODIDE_BASE = "https://cdn.jsdelivr.net/npm/pyodide@0.26.4/";
+let pyPromise = null, pyReady = false;
+const HARNESS = py`
+import io, json, contextlib, traceback
+
+class _Raises:
+    def __init__(self, exc):
+        self.exc = exc
+    def __enter__(self):
+        return self
+    def __exit__(self, t, v, tb):
+        if t is None:
+            raise AssertionError(f"expected {self.exc.__name__} to be raised, but nothing was raised")
+        return issubclass(t, self.exc)
+
+def raises(exc):
+    return _Raises(exc)
+
+def _fmt(e):
+    msg = str(e)
+    return f"{type(e).__name__}: {msg}" if msg else type(e).__name__
+
+def _line(e):
+    if isinstance(e, SyntaxError):
+        return e.lineno
+    for fr in reversed(traceback.extract_tb(e.__traceback__)):
+        if fr.filename == "<your code>":
+            return fr.lineno
+    return None
+
+def _load(user_code, ns, out):
+    with contextlib.redirect_stdout(out):
+        exec(compile(user_code, "<your code>", "exec"), ns)
+
+def _fail(e, out):
+    return json.dumps({"error": _fmt(e), "line": _line(e), "out": out.getvalue()[-2000:], "results": []})
+
+def run_tests(user_code, spec):
+    tests = json.loads(spec)
+    out = io.StringIO()
+    ns = {"__name__": "__main__", "raises": raises}
+    try:
+        _load(user_code, ns, out)
+    except Exception as e:
+        return _fail(e, out)
+    results = []
+    for name, code in tests:
+        try:
+            with contextlib.redirect_stdout(out):
+                exec(code, dict(ns))
+            results.append([name, True, ""])
+        except AssertionError as e:
+            results.append([name, False, str(e) or "the check failed"])
+        except Exception as e:
+            results.append([name, False, _fmt(e)])
+    return json.dumps({"error": None, "out": out.getvalue()[-2000:], "results": results})
+
+def run_mutants(user_code, spec):
+    impls = json.loads(spec)
+    out = io.StringIO()
+    results = []
+    for label, impl, should_pass in impls:
+        ns = {"__name__": "__main__", "raises": raises}
+        exec(impl, ns)
+        try:
+            _load(user_code, ns, out)
+        except Exception as e:
+            return _fail(e, out)
+        tests = [(k, v) for k, v in ns.items() if k.startswith("test_") and callable(v)]
+        if not tests:
+            return json.dumps({"error": "No tests found. Name each test function test_something.", "line": None, "out": "", "results": []})
+        failed = []
+        for k, fn in tests:
+            try:
+                with contextlib.redirect_stdout(out):
+                    fn()
+            except Exception as e:
+                failed.append(f"{k}: {_fmt(e)}")
+        if should_pass:
+            results.append([label, not failed, "; ".join(failed)[:400]])
+        else:
+            results.append([label, bool(failed), "" if failed else "all your tests passed on this broken version"])
+    return json.dumps({"error": None, "out": "", "results": results})
+`;
+
+function loadPy() {
+  if (pyPromise) return pyPromise;
+  const loading = new Promise((resolve, reject) => {
+    const start = () => window.loadPyodide({ indexURL: PYODIDE_BASE }).then(p => { p.runPython(HARNESS); pyReady = true; resolve(p); }, reject);
+    if (window.loadPyodide) { start(); return; }
+    const sc = document.createElement("script");
+    sc.src = PYODIDE_BASE + "pyodide.js";
+    sc.onload = start;
+    sc.onerror = () => reject(new Error("Python could not be downloaded"));
+    document.head.appendChild(sc);
+  });
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Python took too long to load")), 90000));
+  pyPromise = Promise.race([loading, timeout]);
+  pyPromise.catch(() => { pyPromise = null; });
+  return pyPromise;
+}
+
+function labStep(ctx, mutants) {
+  const { t, s, key, body, solved } = ctx;
+  const draft = tstate[t].drafts[key];
+  if (solved) {
+    body.innerHTML = `${draft ? `<details class="reveal"><summary>Your code</summary>${C(draft)}</details>` : ""}<details class="reveal"><summary>Model answer</summary>${C(s.solution)}</details>`;
+    return;
+  }
+  const id = "lab-" + safeId(key);
+  body.innerHTML = `<div class="editor-wrap lab"><div class="editor-bar"><div class="dots"><i></i><i></i><i></i></div><span>Python · Ctrl/⌘ + Enter to run</span></div>
+    <textarea id="${id}" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python editor"></textarea></div>
+    <div class="actions"><button class="btn btn-primary" type="button" data-run>${mutants ? "Run my tests" : "Run tests"} <kbd>Ctrl↵</kbd></button>
+    <button class="btn btn-ghost" type="button" data-reset>Reset code</button><span class="spacer"></span>
+    <button class="btn btn-ghost" type="button" data-sol>Show model answer</button></div>
+    <div class="lab-sol"></div><div class="lab-out" aria-live="polite"></div>`;
+  const ta = body.querySelector("textarea"), out = body.querySelector(".lab-out"), solBox = body.querySelector(".lab-sol"), runBtn = body.querySelector("[data-run]");
+  ta.value = draft ?? s.starter;
+  const saveDraft = () => { tstate[t].drafts[key] = ta.value; tsave(); };
+  ta.addEventListener("input", saveDraft);
+  ta.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault(); const st = ta.selectionStart;
+      ta.value = ta.value.slice(0, st) + "    " + ta.value.slice(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = st + 4; saveDraft();
+    }
+  });
+  const resetBtn = body.querySelector("[data-reset]");
+  resetBtn.onclick = () => {
+    if (resetBtn.dataset.armed) { ta.value = s.starter; saveDraft(); resetBtn.textContent = "Reset code"; delete resetBtn.dataset.armed; ta.focus(); }
+    else { resetBtn.dataset.armed = "1"; resetBtn.textContent = "Click again to reset"; setTimeout(() => { if (resetBtn.isConnected) { resetBtn.textContent = "Reset code"; delete resetBtn.dataset.armed; } }, 4000); }
+  };
+  const showSol = () => {
+    attempts[key] = Math.max(attempts[key] || 0, 1);
+    if (!solBox.innerHTML) solBox.innerHTML = `<details class="reveal" open><summary>Model answer</summary>${C(s.solution)}<p class="hint-line">Looking halves this step's XP. Type it out rather than pasting: it sticks better.</p></details>`;
+  };
+  body.querySelector("[data-sol]").onclick = showSol;
+  runBtn.onclick = run;
+
+  async function run() {
+    if (runBtn.disabled) return;
+    runBtn.disabled = true;
+    out.innerHTML = `<div class="feedback info"><div class="msg">${pyReady ? "Running…" : "Loading Python (about 12 MB, first time only)…"}</div></div>`;
+    try {
+      const pyo = await loadPy();
+      pyo.globals.set("USER_CODE", ta.value);
+      pyo.globals.set("SPEC_JSON", JSON.stringify(mutants ? s.impls : s.tests));
+      const res = JSON.parse(pyo.runPython(mutants ? "run_mutants(USER_CODE, SPEC_JSON)" : "run_tests(USER_CODE, SPEC_JSON)"));
+      show(res);
+    } catch (e) {
+      out.innerHTML = `<div class="feedback info"><div class="msg">Python couldn't load here. It downloads from cdn.jsdelivr.net, which may be blocked in this view, or you may be offline.<small>You can still compare your code with the model answer and mark this step done.</small></div><button class="btn" type="button" data-self>Compare and mark done</button></div>`;
+      out.querySelector("[data-self]").onclick = () => { showSol(); succeed(ctx); };
+    } finally { runBtn.disabled = false; }
+  }
+
+  function show(res) {
+    if (res.error) {
+      out.innerHTML = res.out && res.out.trim() ? `<p class="hint-line">Printed output:</p><pre class="stdout">${esc(res.out)}</pre>` : "";
+      miss(ctx, `Your code didn't run: <code>${esc(res.error)}</code>${res.line ? ` on line ${res.line}` : ""}.`);
+      return;
+    }
+    const list = `<div class="tests">${res.results.map(r => `<div class="${r[1] ? "pass" : "fail"}"><span>${esc(r[0])}${!r[1] && r[2] ? `<small>${esc(r[2])}</small>` : ""}</span></div>`).join("")}</div>`;
+    out.innerHTML = list + (res.out && res.out.trim() ? `<p class="hint-line">Printed output:</p><pre class="stdout">${esc(res.out)}</pre>` : "");
+    const passed = res.results.filter(r => r[1]).length, total = res.results.length;
+    if (passed === total) { succeed(ctx); return; }
+    if (mutants) {
+      if (!res.results[0][1]) miss(ctx, "Your tests fail on the correct version, so one of them expects the wrong thing. See the details above.");
+      else { const caught = res.results.slice(1).filter(r => r[1]).length; miss(ctx, `Your tests caught ${caught} of ${total - 1} bugs. Which cases haven't you tried yet?`); }
+    } else miss(ctx, `${passed} of ${total} tests pass.`);
+  }
+}
+
 /* ---- Boot ---- */
 function startApp() {
   $("gate").hidden = true; $("app-root").hidden = false;
-  $("nav").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) go(b.dataset.id); });
+  $("nav").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) (active === "sql" ? go : stepGo)(b.dataset.id); });
   $("nav-toggle").onclick = () => {
     const open = $("app").classList.toggle("nav-open");
     $("nav-toggle").setAttribute("aria-expanded", String(open));
   };
-  renderLesson();
+  $("tabs").addEventListener("click", e => { const b = e.target.closest("button[data-track]"); if (b && b.dataset.track !== active) setTrack(b.dataset.track); });
+  setTrack(active);
   sqlReady.catch(err => feedback("bad", `<div class="msg">${esc(err.message)}</div>`));
 }
 
