@@ -9714,8 +9714,7 @@ const TRACKS = {
          ranks: [[0, "Fresher"], [70, "Diagram Reader"], [150, "Systems Thinker"], [230, "Architect in Training"], [290, "Can Explain It All"]] },
   dist: { name: "Distributed", who: "Kai, distributed systems engineer", av: "K", lessons: DIST,
          ranks: [[0, "Single Server"], [40, "Packet Watcher"], [90, "Replica Wrangler"], [140, "Consensus Builder"], [180, "Distributed Thinker"]] },
-  ana: { name: "Analyst", who: "Lena, life-science IT consultant", av: "L", lessons: ANALYST,
-         ranks: [[0, "Bench Scientist"], [60, "Process Mapper"], [130, "Requirements Writer"], [200, "Validation Aware"], [270, "Consultant Ready"]] },
+  ana: { name: "Analyst", who: "Lena, life-science IT consultant", av: "L", lessons: ANALYST, noXp: true, ranks: [[0, ""]] },
 };
 
 /* ---------- Step engine ---------- */
@@ -9737,6 +9736,8 @@ function lessonXp(t, les) {
 }
 
 function stepRenderTop(t) {
+  document.querySelector(".xp").style.visibility = TRACKS[t].noXp ? "hidden" : "";
+  if (TRACKS[t].noXp) return;
   const x = tXp(t), ranks = TRACKS[t].ranks;
   let r = ranks[0], next = null;
   for (let i = 0; i < ranks.length; i++) if (x >= ranks[i][0]) { r = ranks[i]; next = ranks[i + 1] || null; }
@@ -9780,6 +9781,7 @@ function setTrack(t) {
   try { localStorage.setItem("ferry-street-active", t); } catch (e) {}
   document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.track === t)));
   $("app").classList.remove("nav-open"); $("nav-toggle").setAttribute("aria-expanded", "false");
+  document.querySelector(".xp").style.visibility = TRACKS[t] && TRACKS[t].noXp ? "hidden" : "";
   if (t === "sql") renderLesson(); else stepRenderLesson(t);
   window.scrollTo({ top: 0 });
 }
@@ -9822,7 +9824,7 @@ function stepRenderLesson(t, focus) {
   if (done) {
     const next = list[idx + 1];
     box.insertAdjacentHTML("beforeend", `<div class="finale" id="step-finish"><span class="eyebrow">Lesson complete</span>
-      <h3>${esc(les.title)}: ${lessonXp(t, les)} XP earned</h3>
+      <h3>${esc(les.title)}${T.noXp ? "" : `: ${lessonXp(t, les)} XP earned`}</h3>
       <div class="actions">${next ? `<button class="btn btn-primary" type="button" id="next-lesson">Next: ${esc(next.title)} →</button>` : `<span><b>That's the whole ${esc(T.name)} course.</b> Well done.</span>`}
       <button class="btn btn-ghost" type="button" id="restart-lesson">Go through it again</button></div></div>`);
     if (next) $("next-lesson").onclick = () => stepGo(next.id);
@@ -9874,7 +9876,7 @@ function succeed(ctx, opts = {}) {
     const full = FULL[s.t];
     const x = opts.xp != null ? opts.xp : ((attempts[key] || 0) === 0 ? full : Math.ceil(full / 2));
     tstate[t].xp[key] = x; tsave();
-    gained = ` +${x} XP`;
+    gained = TRACKS[t].noXp ? "" : ` +${x} XP`;
     stepRenderTop(t);
   }
   fb.innerHTML = `<div class="feedback good"><div class="msg">${pick(PRAISE)}${gained}</div></div>${opts.extra || ""}${s.why ? `<div class="explain">${s.why}</div>` : ""}${contButton(ctx)}`;
